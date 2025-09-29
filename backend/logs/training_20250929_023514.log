@@ -1,0 +1,262 @@
+2025-09-29 02:35:14,546 - deepfake_detector - INFO - Starting training with config: TrainingConfig(backbone='resnet50', pretrained=True, dropout=0.5, num_classes=2, input_size=[3, 224, 224], batch_size=32, learning_rate=0.0001, weight_decay=0.0001, epochs=100, warmup_epochs=5, train_ratio=0.7, val_ratio=0.15, num_workers=4, pin_memory=True, patience=15, min_delta=0.0001, grad_clip_value=1.0, data_path='/kaggle/input/model-a/backend/data', output_dir='/kaggle/working/deepfake_checkpoints', log_dir='/kaggle/working/deepfake_checkpoints/logs', use_wandb=False, use_tensorboard=True, use_mlflow=False, use_ensemble=False, ensemble_models=[], model_version='1.0.0', api_host='0.0.0.0', api_port=8000, IMAGENET_MEAN=[0.485, 0.456, 0.406], IMAGENET_STD=[0.229, 0.224, 0.225], resume=True, resume_from='/kaggle/working/deepfake_checkpoints/checkpoint_epoch_57.pt', resume_best=True, use_mixed_precision=True)
+2025-09-29 02:35:14,546 - deepfake_detector - INFO - Setting up data pipeline...
+2025-09-29 02:38:13,004 - deepfake_detector - INFO - Dataset: 12203 train, 2614 val, 2617 test
+2025-09-29 02:38:13,004 - deepfake_detector - INFO - Classes: ['fake', 'real']
+2025-09-29 02:38:13,006 - deepfake_detector - INFO - Class distribution: {1: 6208, 0: 5995}
+2025-09-29 02:38:13,006 - deepfake_detector - INFO - Class weights: [5995.0, 6208.0]
+2025-09-29 02:38:13,006 - deepfake_detector - INFO - Initializing training manager...
+2025-09-29 02:38:13,007 - deepfake_detector - INFO - TensorBoard initialized
+2025-09-29 02:38:14,366 - deepfake_detector - INFO - Model initialized: 26266177 parameters
+2025-09-29 02:38:14,366 - deepfake_detector - INFO - Training on device: cuda
+2025-09-29 02:38:14,366 - deepfake_detector - INFO - Checking for resume training...
+2025-09-29 02:38:14,663 - deepfake_detector - INFO - Loaded checkpoint from /kaggle/working/deepfake_checkpoints/checkpoint_epoch_57.pt (epoch 57)
+2025-09-29 02:38:14,663 - deepfake_detector - INFO - Resuming training from epoch 58
+2025-09-29 02:38:14,664 - deepfake_detector - INFO - Starting training from epoch 58...
+2025-09-29 02:38:14,664 - deepfake_detector - INFO - Starting epoch 59/100
+2025-09-29 02:39:48,816 - deepfake_detector - INFO - Epoch [59] - Train Loss: 0.1882, Train Acc: 0.9202, Val Loss: 0.1299, Val F1: 0.9474, Val AUC: 0.9903
+2025-09-29 02:39:48,820 - deepfake_detector - INFO - New best model! F1: 0.9474, AUC: 0.9903
+2025-09-29 02:39:50,174 - deepfake_detector - INFO - Checkpoint saved at epoch 58 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_58.pt
+2025-09-29 02:39:50,174 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:39:50,860 - deepfake_detector - INFO - Best model saved at epoch 58 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 02:39:50,983 - deepfake_detector - INFO - Starting epoch 60/100
+2025-09-29 02:41:22,145 - deepfake_detector - INFO - Epoch [60] - Train Loss: 0.1823, Train Acc: 0.9238, Val Loss: 0.1472, Val F1: 0.9441, Val AUC: 0.9902
+2025-09-29 02:41:23,672 - deepfake_detector - INFO - Checkpoint saved at epoch 59 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_59.pt
+2025-09-29 02:41:23,673 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:41:23,675 - deepfake_detector - INFO - Periodic checkpoint saved at epoch 60
+2025-09-29 02:41:25,233 - deepfake_detector - INFO - Checkpoint saved at epoch 59 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_59.pt
+2025-09-29 02:41:25,233 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:41:25,234 - deepfake_detector - INFO - Starting epoch 61/100
+2025-09-29 02:42:55,716 - deepfake_detector - INFO - Epoch [61] - Train Loss: 0.1825, Train Acc: 0.9244, Val Loss: 0.1162, Val F1: 0.9555, Val AUC: 0.9920
+2025-09-29 02:42:55,718 - deepfake_detector - INFO - New best model! F1: 0.9555, AUC: 0.9920
+2025-09-29 02:42:57,213 - deepfake_detector - INFO - Checkpoint saved at epoch 60 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_60.pt
+2025-09-29 02:42:57,213 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:42:57,970 - deepfake_detector - INFO - Best model saved at epoch 60 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 02:42:58,067 - deepfake_detector - INFO - Starting epoch 62/100
+2025-09-29 02:44:28,803 - deepfake_detector - INFO - Epoch [62] - Train Loss: 0.1768, Train Acc: 0.9260, Val Loss: 0.1104, Val F1: 0.9577, Val AUC: 0.9922
+2025-09-29 02:44:28,806 - deepfake_detector - INFO - New best model! F1: 0.9577, AUC: 0.9922
+2025-09-29 02:44:30,232 - deepfake_detector - INFO - Checkpoint saved at epoch 61 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_61.pt
+2025-09-29 02:44:30,232 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:44:30,959 - deepfake_detector - INFO - Best model saved at epoch 61 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 02:44:31,025 - deepfake_detector - INFO - Starting epoch 63/100
+2025-09-29 02:46:02,008 - deepfake_detector - INFO - Epoch [63] - Train Loss: 0.1734, Train Acc: 0.9269, Val Loss: 0.1202, Val F1: 0.9582, Val AUC: 0.9931
+2025-09-29 02:46:02,011 - deepfake_detector - INFO - New best model! F1: 0.9582, AUC: 0.9931
+2025-09-29 02:46:03,465 - deepfake_detector - INFO - Checkpoint saved at epoch 62 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_62.pt
+2025-09-29 02:46:03,466 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:46:04,215 - deepfake_detector - INFO - Best model saved at epoch 62 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 02:46:04,279 - deepfake_detector - INFO - Starting epoch 64/100
+2025-09-29 02:47:35,547 - deepfake_detector - INFO - Epoch [64] - Train Loss: 0.1710, Train Acc: 0.9299, Val Loss: 0.1166, Val F1: 0.9559, Val AUC: 0.9933
+2025-09-29 02:47:36,994 - deepfake_detector - INFO - Checkpoint saved at epoch 63 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_63.pt
+2025-09-29 02:47:36,994 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:47:36,995 - deepfake_detector - INFO - Starting epoch 65/100
+2025-09-29 02:49:07,565 - deepfake_detector - INFO - Epoch [65] - Train Loss: 0.1756, Train Acc: 0.9246, Val Loss: 0.1102, Val F1: 0.9622, Val AUC: 0.9934
+2025-09-29 02:49:07,568 - deepfake_detector - INFO - New best model! F1: 0.9622, AUC: 0.9934
+2025-09-29 02:49:08,998 - deepfake_detector - INFO - Checkpoint saved at epoch 64 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_64.pt
+2025-09-29 02:49:08,998 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:49:08,998 - deepfake_detector - INFO - Periodic checkpoint saved at epoch 65
+2025-09-29 02:49:10,477 - deepfake_detector - INFO - Checkpoint saved at epoch 64 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_64.pt
+2025-09-29 02:49:10,477 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:49:11,235 - deepfake_detector - INFO - Best model saved at epoch 64 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 02:49:11,304 - deepfake_detector - INFO - Starting epoch 66/100
+2025-09-29 02:50:42,117 - deepfake_detector - INFO - Epoch [66] - Train Loss: 0.1523, Train Acc: 0.9380, Val Loss: 0.0945, Val F1: 0.9639, Val AUC: 0.9940
+2025-09-29 02:50:42,120 - deepfake_detector - INFO - New best model! F1: 0.9639, AUC: 0.9940
+2025-09-29 02:50:43,562 - deepfake_detector - INFO - Checkpoint saved at epoch 65 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_65.pt
+2025-09-29 02:50:43,563 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:50:44,330 - deepfake_detector - INFO - Best model saved at epoch 65 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 02:50:44,409 - deepfake_detector - INFO - Starting epoch 67/100
+2025-09-29 02:52:15,662 - deepfake_detector - INFO - Epoch [67] - Train Loss: 0.1667, Train Acc: 0.9304, Val Loss: 0.1162, Val F1: 0.9564, Val AUC: 0.9941
+2025-09-29 02:52:17,096 - deepfake_detector - INFO - Checkpoint saved at epoch 66 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_66.pt
+2025-09-29 02:52:17,096 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:52:17,097 - deepfake_detector - INFO - Starting epoch 68/100
+2025-09-29 02:53:47,749 - deepfake_detector - INFO - Epoch [68] - Train Loss: 0.1705, Train Acc: 0.9304, Val Loss: 0.1031, Val F1: 0.9598, Val AUC: 0.9939
+2025-09-29 02:53:49,179 - deepfake_detector - INFO - Checkpoint saved at epoch 67 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_67.pt
+2025-09-29 02:53:49,179 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:53:49,180 - deepfake_detector - INFO - Starting epoch 69/100
+2025-09-29 02:55:19,844 - deepfake_detector - INFO - Epoch [69] - Train Loss: 0.1557, Train Acc: 0.9354, Val Loss: 0.1018, Val F1: 0.9566, Val AUC: 0.9937
+2025-09-29 02:55:21,353 - deepfake_detector - INFO - Checkpoint saved at epoch 68 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_68.pt
+2025-09-29 02:55:21,353 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:55:21,354 - deepfake_detector - INFO - Starting epoch 70/100
+2025-09-29 02:56:52,645 - deepfake_detector - INFO - Epoch [70] - Train Loss: 0.1538, Train Acc: 0.9397, Val Loss: 0.0968, Val F1: 0.9637, Val AUC: 0.9945
+2025-09-29 02:56:54,132 - deepfake_detector - INFO - Checkpoint saved at epoch 69 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_69.pt
+2025-09-29 02:56:54,132 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:56:54,133 - deepfake_detector - INFO - Periodic checkpoint saved at epoch 70
+2025-09-29 02:56:55,663 - deepfake_detector - INFO - Checkpoint saved at epoch 69 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_69.pt
+2025-09-29 02:56:55,663 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:56:55,664 - deepfake_detector - INFO - Starting epoch 71/100
+2025-09-29 02:58:27,369 - deepfake_detector - INFO - Epoch [71] - Train Loss: 0.1637, Train Acc: 0.9309, Val Loss: 0.0970, Val F1: 0.9624, Val AUC: 0.9943
+2025-09-29 02:58:28,857 - deepfake_detector - INFO - Checkpoint saved at epoch 70 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_70.pt
+2025-09-29 02:58:28,858 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 02:58:28,858 - deepfake_detector - INFO - Starting epoch 72/100
+2025-09-29 03:00:01,274 - deepfake_detector - INFO - Epoch [72] - Train Loss: 0.1594, Train Acc: 0.9330, Val Loss: 0.0900, Val F1: 0.9645, Val AUC: 0.9949
+2025-09-29 03:00:01,277 - deepfake_detector - INFO - New best model! F1: 0.9645, AUC: 0.9949
+2025-09-29 03:00:02,773 - deepfake_detector - INFO - Checkpoint saved at epoch 71 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_71.pt
+2025-09-29 03:00:02,773 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:00:03,570 - deepfake_detector - INFO - Best model saved at epoch 71 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 03:00:03,644 - deepfake_detector - INFO - Starting epoch 73/100
+2025-09-29 03:01:36,594 - deepfake_detector - INFO - Epoch [73] - Train Loss: 0.1618, Train Acc: 0.9340, Val Loss: 0.0932, Val F1: 0.9641, Val AUC: 0.9943
+2025-09-29 03:01:38,119 - deepfake_detector - INFO - Checkpoint saved at epoch 72 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_72.pt
+2025-09-29 03:01:38,119 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:01:38,120 - deepfake_detector - INFO - Starting epoch 74/100
+2025-09-29 03:03:08,886 - deepfake_detector - INFO - Epoch [74] - Train Loss: 0.1517, Train Acc: 0.9382, Val Loss: 0.1063, Val F1: 0.9600, Val AUC: 0.9941
+2025-09-29 03:03:10,445 - deepfake_detector - INFO - Checkpoint saved at epoch 73 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_73.pt
+2025-09-29 03:03:10,445 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:03:10,446 - deepfake_detector - INFO - Starting epoch 75/100
+2025-09-29 03:04:40,725 - deepfake_detector - INFO - Epoch [75] - Train Loss: 0.1483, Train Acc: 0.9396, Val Loss: 0.0946, Val F1: 0.9629, Val AUC: 0.9942
+2025-09-29 03:04:42,332 - deepfake_detector - INFO - Checkpoint saved at epoch 74 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_74.pt
+2025-09-29 03:04:42,332 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:04:42,333 - deepfake_detector - INFO - Periodic checkpoint saved at epoch 75
+2025-09-29 03:04:43,984 - deepfake_detector - INFO - Checkpoint saved at epoch 74 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_74.pt
+2025-09-29 03:04:43,984 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:04:43,985 - deepfake_detector - INFO - Starting epoch 76/100
+2025-09-29 03:06:14,253 - deepfake_detector - INFO - Epoch [76] - Train Loss: 0.1519, Train Acc: 0.9374, Val Loss: 0.0940, Val F1: 0.9633, Val AUC: 0.9944
+2025-09-29 03:06:15,753 - deepfake_detector - INFO - Checkpoint saved at epoch 75 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_75.pt
+2025-09-29 03:06:15,753 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:06:15,754 - deepfake_detector - INFO - Starting epoch 77/100
+2025-09-29 03:07:46,409 - deepfake_detector - INFO - Epoch [77] - Train Loss: 0.1575, Train Acc: 0.9351, Val Loss: 0.0909, Val F1: 0.9648, Val AUC: 0.9947
+2025-09-29 03:07:46,413 - deepfake_detector - INFO - New best model! F1: 0.9648, AUC: 0.9947
+2025-09-29 03:07:47,929 - deepfake_detector - INFO - Checkpoint saved at epoch 76 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_76.pt
+2025-09-29 03:07:47,929 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:07:48,688 - deepfake_detector - INFO - Best model saved at epoch 76 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 03:07:48,752 - deepfake_detector - INFO - Starting epoch 78/100
+2025-09-29 03:09:19,669 - deepfake_detector - INFO - Epoch [78] - Train Loss: 0.1500, Train Acc: 0.9373, Val Loss: 0.0943, Val F1: 0.9687, Val AUC: 0.9943
+2025-09-29 03:09:19,673 - deepfake_detector - INFO - New best model! F1: 0.9687, AUC: 0.9943
+2025-09-29 03:09:21,177 - deepfake_detector - INFO - Checkpoint saved at epoch 77 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_77.pt
+2025-09-29 03:09:21,178 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:09:21,956 - deepfake_detector - INFO - Best model saved at epoch 77 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 03:09:22,024 - deepfake_detector - INFO - Starting epoch 79/100
+2025-09-29 03:10:53,116 - deepfake_detector - INFO - Epoch [79] - Train Loss: 0.1497, Train Acc: 0.9395, Val Loss: 0.0944, Val F1: 0.9658, Val AUC: 0.9940
+2025-09-29 03:10:54,598 - deepfake_detector - INFO - Checkpoint saved at epoch 78 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_78.pt
+2025-09-29 03:10:54,598 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:10:54,599 - deepfake_detector - INFO - Starting epoch 80/100
+2025-09-29 03:12:25,547 - deepfake_detector - INFO - Epoch [80] - Train Loss: 0.1461, Train Acc: 0.9399, Val Loss: 0.0840, Val F1: 0.9704, Val AUC: 0.9964
+2025-09-29 03:12:25,551 - deepfake_detector - INFO - New best model! F1: 0.9704, AUC: 0.9964
+2025-09-29 03:12:27,033 - deepfake_detector - INFO - Checkpoint saved at epoch 79 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_79.pt
+2025-09-29 03:12:27,034 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:12:27,034 - deepfake_detector - INFO - Periodic checkpoint saved at epoch 80
+2025-09-29 03:12:28,588 - deepfake_detector - INFO - Checkpoint saved at epoch 79 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_79.pt
+2025-09-29 03:12:28,589 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:12:29,329 - deepfake_detector - INFO - Best model saved at epoch 79 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 03:12:29,396 - deepfake_detector - INFO - Starting epoch 81/100
+2025-09-29 03:14:00,129 - deepfake_detector - INFO - Epoch [81] - Train Loss: 0.1372, Train Acc: 0.9441, Val Loss: 0.0811, Val F1: 0.9694, Val AUC: 0.9959
+2025-09-29 03:14:01,570 - deepfake_detector - INFO - Checkpoint saved at epoch 80 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_80.pt
+2025-09-29 03:14:01,571 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:14:01,573 - deepfake_detector - INFO - Starting epoch 82/100
+2025-09-29 03:15:33,633 - deepfake_detector - INFO - Epoch [82] - Train Loss: 0.1429, Train Acc: 0.9423, Val Loss: 0.0897, Val F1: 0.9641, Val AUC: 0.9951
+2025-09-29 03:15:35,091 - deepfake_detector - INFO - Checkpoint saved at epoch 81 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_81.pt
+2025-09-29 03:15:35,091 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:15:35,092 - deepfake_detector - INFO - Starting epoch 83/100
+2025-09-29 03:17:08,818 - deepfake_detector - INFO - Epoch [83] - Train Loss: 0.1363, Train Acc: 0.9431, Val Loss: 0.1042, Val F1: 0.9623, Val AUC: 0.9930
+2025-09-29 03:17:10,270 - deepfake_detector - INFO - Checkpoint saved at epoch 82 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_82.pt
+2025-09-29 03:17:10,270 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:17:10,271 - deepfake_detector - INFO - Starting epoch 84/100
+2025-09-29 03:18:42,235 - deepfake_detector - INFO - Epoch [84] - Train Loss: 0.1347, Train Acc: 0.9475, Val Loss: 0.0734, Val F1: 0.9736, Val AUC: 0.9962
+2025-09-29 03:18:42,239 - deepfake_detector - INFO - New best model! F1: 0.9736, AUC: 0.9962
+2025-09-29 03:18:43,716 - deepfake_detector - INFO - Checkpoint saved at epoch 83 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_83.pt
+2025-09-29 03:18:43,716 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:18:44,456 - deepfake_detector - INFO - Best model saved at epoch 83 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 03:18:44,530 - deepfake_detector - INFO - Starting epoch 85/100
+2025-09-29 03:20:16,950 - deepfake_detector - INFO - Epoch [85] - Train Loss: 0.1408, Train Acc: 0.9442, Val Loss: 0.2170, Val F1: 0.9665, Val AUC: 0.9868
+2025-09-29 03:20:18,408 - deepfake_detector - INFO - Checkpoint saved at epoch 84 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_84.pt
+2025-09-29 03:20:18,408 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:20:18,409 - deepfake_detector - INFO - Periodic checkpoint saved at epoch 85
+2025-09-29 03:20:19,914 - deepfake_detector - INFO - Checkpoint saved at epoch 84 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_84.pt
+2025-09-29 03:20:19,914 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:20:19,915 - deepfake_detector - INFO - Starting epoch 86/100
+2025-09-29 03:21:51,361 - deepfake_detector - INFO - Epoch [86] - Train Loss: 0.1380, Train Acc: 0.9435, Val Loss: 0.0969, Val F1: 0.9705, Val AUC: 0.9957
+2025-09-29 03:21:52,776 - deepfake_detector - INFO - Checkpoint saved at epoch 85 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_85.pt
+2025-09-29 03:21:52,776 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:21:52,777 - deepfake_detector - INFO - Starting epoch 87/100
+2025-09-29 03:23:24,537 - deepfake_detector - INFO - Epoch [87] - Train Loss: 0.1388, Train Acc: 0.9448, Val Loss: 0.0826, Val F1: 0.9736, Val AUC: 0.9972
+2025-09-29 03:23:25,964 - deepfake_detector - INFO - Checkpoint saved at epoch 86 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_86.pt
+2025-09-29 03:23:25,964 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:23:25,967 - deepfake_detector - INFO - Starting epoch 88/100
+2025-09-29 03:24:57,108 - deepfake_detector - INFO - Epoch [88] - Train Loss: 0.1346, Train Acc: 0.9467, Val Loss: 0.0733, Val F1: 0.9742, Val AUC: 0.9975
+2025-09-29 03:24:57,112 - deepfake_detector - INFO - New best model! F1: 0.9742, AUC: 0.9975
+2025-09-29 03:24:58,521 - deepfake_detector - INFO - Checkpoint saved at epoch 87 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_87.pt
+2025-09-29 03:24:58,522 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:24:59,280 - deepfake_detector - INFO - Best model saved at epoch 87 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 03:24:59,356 - deepfake_detector - INFO - Starting epoch 89/100
+2025-09-29 03:26:31,549 - deepfake_detector - INFO - Epoch [89] - Train Loss: 0.1262, Train Acc: 0.9496, Val Loss: 0.0676, Val F1: 0.9757, Val AUC: 0.9965
+2025-09-29 03:26:31,553 - deepfake_detector - INFO - New best model! F1: 0.9757, AUC: 0.9965
+2025-09-29 03:26:32,975 - deepfake_detector - INFO - Checkpoint saved at epoch 88 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_88.pt
+2025-09-29 03:26:32,975 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:26:33,662 - deepfake_detector - INFO - Best model saved at epoch 88 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 03:26:33,741 - deepfake_detector - INFO - Starting epoch 90/100
+2025-09-29 03:28:06,230 - deepfake_detector - INFO - Epoch [90] - Train Loss: 0.1264, Train Acc: 0.9500, Val Loss: 0.0748, Val F1: 0.9750, Val AUC: 0.9965
+2025-09-29 03:28:07,558 - deepfake_detector - INFO - Checkpoint saved at epoch 89 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_89.pt
+2025-09-29 03:28:07,558 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:28:07,558 - deepfake_detector - INFO - Periodic checkpoint saved at epoch 90
+2025-09-29 03:28:08,883 - deepfake_detector - INFO - Checkpoint saved at epoch 89 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_89.pt
+2025-09-29 03:28:08,883 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:28:08,884 - deepfake_detector - INFO - Starting epoch 91/100
+2025-09-29 03:29:40,786 - deepfake_detector - INFO - Epoch [91] - Train Loss: 0.1229, Train Acc: 0.9527, Val Loss: 0.0870, Val F1: 0.9703, Val AUC: 0.9960
+2025-09-29 03:29:42,104 - deepfake_detector - INFO - Checkpoint saved at epoch 90 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_90.pt
+2025-09-29 03:29:42,105 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:29:42,105 - deepfake_detector - INFO - Starting epoch 92/100
+2025-09-29 03:31:14,930 - deepfake_detector - INFO - Epoch [92] - Train Loss: 0.1253, Train Acc: 0.9525, Val Loss: 0.0614, Val F1: 0.9756, Val AUC: 0.9978
+2025-09-29 03:31:16,221 - deepfake_detector - INFO - Checkpoint saved at epoch 91 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_91.pt
+2025-09-29 03:31:16,222 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:31:16,222 - deepfake_detector - INFO - Starting epoch 93/100
+2025-09-29 03:32:47,600 - deepfake_detector - INFO - Epoch [93] - Train Loss: 0.1256, Train Acc: 0.9511, Val Loss: 0.0930, Val F1: 0.9757, Val AUC: 0.9959
+2025-09-29 03:32:48,908 - deepfake_detector - INFO - Checkpoint saved at epoch 92 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_92.pt
+2025-09-29 03:32:48,908 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:32:48,909 - deepfake_detector - INFO - Starting epoch 94/100
+2025-09-29 03:34:20,788 - deepfake_detector - INFO - Epoch [94] - Train Loss: 0.1080, Train Acc: 0.9596, Val Loss: 0.0748, Val F1: 0.9696, Val AUC: 0.9974
+2025-09-29 03:34:22,088 - deepfake_detector - INFO - Checkpoint saved at epoch 93 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_93.pt
+2025-09-29 03:34:22,088 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:34:22,089 - deepfake_detector - INFO - Starting epoch 95/100
+2025-09-29 03:35:53,965 - deepfake_detector - INFO - Epoch [95] - Train Loss: 0.0982, Train Acc: 0.9615, Val Loss: 0.1232, Val F1: 0.9742, Val AUC: 0.9942
+2025-09-29 03:35:55,260 - deepfake_detector - INFO - Checkpoint saved at epoch 94 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_94.pt
+2025-09-29 03:35:55,261 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:35:55,262 - deepfake_detector - INFO - Periodic checkpoint saved at epoch 95
+2025-09-29 03:35:56,578 - deepfake_detector - INFO - Checkpoint saved at epoch 94 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_94.pt
+2025-09-29 03:35:56,578 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:35:56,579 - deepfake_detector - INFO - Starting epoch 96/100
+2025-09-29 03:37:27,889 - deepfake_detector - INFO - Epoch [96] - Train Loss: 0.0965, Train Acc: 0.9623, Val Loss: 0.0511, Val F1: 0.9831, Val AUC: 0.9980
+2025-09-29 03:37:27,893 - deepfake_detector - INFO - New best model! F1: 0.9831, AUC: 0.9980
+2025-09-29 03:37:29,181 - deepfake_detector - INFO - Checkpoint saved at epoch 95 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_95.pt
+2025-09-29 03:37:29,182 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:37:29,831 - deepfake_detector - INFO - Best model saved at epoch 95 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 03:37:29,912 - deepfake_detector - INFO - Starting epoch 97/100
+2025-09-29 03:39:01,235 - deepfake_detector - INFO - Epoch [97] - Train Loss: 0.0983, Train Acc: 0.9649, Val Loss: 0.0514, Val F1: 0.9826, Val AUC: 0.9980
+2025-09-29 03:39:02,532 - deepfake_detector - INFO - Checkpoint saved at epoch 96 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_96.pt
+2025-09-29 03:39:02,533 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:39:02,533 - deepfake_detector - INFO - Starting epoch 98/100
+2025-09-29 03:40:34,363 - deepfake_detector - INFO - Epoch [98] - Train Loss: 0.1032, Train Acc: 0.9639, Val Loss: 0.0621, Val F1: 0.9800, Val AUC: 0.9976
+2025-09-29 03:40:35,681 - deepfake_detector - INFO - Checkpoint saved at epoch 97 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_97.pt
+2025-09-29 03:40:35,681 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:40:35,682 - deepfake_detector - INFO - Starting epoch 99/100
+2025-09-29 03:42:09,223 - deepfake_detector - INFO - Epoch [99] - Train Loss: 0.0879, Train Acc: 0.9690, Val Loss: 0.0434, Val F1: 0.9849, Val AUC: 0.9988
+2025-09-29 03:42:09,227 - deepfake_detector - INFO - New best model! F1: 0.9849, AUC: 0.9988
+2025-09-29 03:42:10,500 - deepfake_detector - INFO - Checkpoint saved at epoch 98 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_98.pt
+2025-09-29 03:42:10,500 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:42:11,185 - deepfake_detector - INFO - Best model saved at epoch 98 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 03:42:11,268 - deepfake_detector - INFO - Starting epoch 100/100
+2025-09-29 03:43:44,727 - deepfake_detector - INFO - Epoch [100] - Train Loss: 0.0860, Train Acc: 0.9684, Val Loss: 0.0386, Val F1: 0.9864, Val AUC: 0.9989
+2025-09-29 03:43:44,731 - deepfake_detector - INFO - New best model! F1: 0.9864, AUC: 0.9989
+2025-09-29 03:43:46,020 - deepfake_detector - INFO - Checkpoint saved at epoch 99 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_99.pt
+2025-09-29 03:43:46,020 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:43:46,021 - deepfake_detector - INFO - Periodic checkpoint saved at epoch 100
+2025-09-29 03:43:47,346 - deepfake_detector - INFO - Checkpoint saved at epoch 99 to /kaggle/working/deepfake_checkpoints/checkpoint_epoch_99.pt
+2025-09-29 03:43:47,346 - deepfake_detector - INFO - Updated latest checkpoint pointer: /kaggle/working/deepfake_checkpoints/checkpoint.pt
+2025-09-29 03:43:48,050 - deepfake_detector - INFO - Best model saved at epoch 99 to /kaggle/working/deepfake_checkpoints/image_model.pt
+2025-09-29 03:43:48,129 - deepfake_detector - INFO - Training completed successfully!
+2025-09-29 03:43:48,129 - deepfake_detector - INFO - Starting final evaluation on test set...
+2025-09-29 03:43:59,327 - deepfake_detector - INFO - ============================================================
+2025-09-29 03:43:59,328 - deepfake_detector - INFO - FINAL RESULTS
+2025-09-29 03:43:59,328 - deepfake_detector - INFO - ============================================================
+2025-09-29 03:43:59,328 - deepfake_detector - INFO - Best Validation F1: 0.9864
+2025-09-29 03:43:59,328 - deepfake_detector - INFO - Test Loss: 0.0416
+2025-09-29 03:43:59,328 - deepfake_detector - INFO - Test Accuracy: 0.9859
+2025-09-29 03:43:59,328 - deepfake_detector - INFO - Test F1: 0.9861
+2025-09-29 03:43:59,328 - deepfake_detector - INFO - Test AUC: 0.9991
+2025-09-29 03:43:59,328 - deepfake_detector - INFO - Test Precision: 0.9865
+2025-09-29 03:43:59,329 - deepfake_detector - INFO - Test Recall: 0.9857
+2025-09-29 03:43:59,329 - deepfake_detector - INFO - ============================================================
+2025-09-29 03:43:59,329 - deepfake_detector - INFO - Generating evaluation report...
+2025-09-29 03:44:02,109 - deepfake_detector - INFO - Evaluation report generated successfully
+2025-09-29 03:44:02,109 - deepfake_detector - INFO - Saving production model...
+2025-09-29 03:44:04,844 - deepfake_detector - INFO - Production model saved successfully
+2025-09-29 03:44:04,846 - deepfake_detector - INFO - All training tasks completed successfully!
+2025-09-29 03:44:04,846 - deepfake_detector - INFO - ðŸ§¹ Cleaning up resources...
+2025-09-29 03:44:04,847 - deepfake_detector - INFO - Monitoring resources cleaned up
+2025-09-29 03:44:04,847 - deepfake_detector - INFO - ðŸ‘‹ Training session ended

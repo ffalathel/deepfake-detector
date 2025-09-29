@@ -1,0 +1,6 @@
+backend/models/checkpoint.pt
+backend/models/checkpoint_*epoch*99.pt
+backend/models/image_model.pt
+backend/models/*.pt
+backend/models/*.pth
+backend/models/*.ckpt
