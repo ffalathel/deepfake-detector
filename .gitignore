@@ -4,3 +4,4 @@ backend/models/image_model.pt
 backend/models/*.pt
 backend/models/*.pth
 backend/models/*.ckpt
+backend/data
