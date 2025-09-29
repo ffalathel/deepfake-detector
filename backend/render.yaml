@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: deepfake-detector-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: THINKING_TIME
+        value: 3.0
+    disk:
+      name: models
+      mountPath: /opt/render/project/src/models
+      sizeGB: 1
