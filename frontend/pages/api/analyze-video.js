@@ -68,10 +68,23 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      // If backend is not available, use mock response for development
+      // If backend is not available, return coming soon message
       if (process.env.NODE_ENV === 'development') {
-        const mockResult = await getMockVideoAnalysis(fileBuffer, file.originalFilename);
-        return res.status(200).json(mockResult);
+        return res.status(200).json({
+          prediction: "coming_soon",
+          confidence: 0.0,
+          explanation: "Video deepfake detection is coming soon! This feature is currently under development and will be available in a future update.",
+          details: {
+            model_used: "Video Detection Model (Coming Soon)",
+            processing_time: 0.0,
+            file_size: `${(fileSize / 1024 / 1024).toFixed(2)} MB`,
+            frames_analyzed: 0,
+            video_duration: 0,
+            detected_features: "Feature in development",
+            status: "coming_soon",
+            message: "We're working hard to bring you advanced video deepfake detection capabilities. Stay tuned for updates!"
+          }
+        });
       }
       throw new Error(`Backend error: ${response.status}`);
     }

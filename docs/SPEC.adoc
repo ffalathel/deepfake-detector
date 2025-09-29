@@ -13,9 +13,9 @@ Requirements
 Must Have
 
  Detect whether an uploaded image is likely AI-generated using a simple classification model.
- Allow users to upload or paste an image or video URL.
+ Allow users to upload or paste an image URL (video support coming soon).
  Simple user interface with very clear results ("Real" vs "AI-generated").
- Support for JPEG, PNG, and MP4 formats.
+ Support for JPEG, PNG formats (MP4 support coming soon).
  Mobile-friendly design.
 
 Should Have
@@ -38,7 +38,7 @@ Won’t Have (for MVP)
 
 Method
 
-The system is designed as a lightweight cloud-hosted web application consisting of a front-end interface and a back-end AI detection service. The detection model is custom-trained using transfer learning on a dataset of real and AI-generated images.
+The system is designed as a lightweight cloud-hosted web application consisting of a front-end interface and a back-end AI detection service. The detection model is custom-trained using transfer learning on a dataset of real and AI-generated images. Video detection capabilities are currently in development.
 
 Architecture Overview
 
@@ -83,18 +83,18 @@ Custom-trained ResNet50 classifier to detect AI-generated imagery.
  Training method: Transfer learning
  Hosted on: Cloud backend (Docker + FastAPI)
 
-Video Detection (Pretrained Model)
+Video Detection (Coming Soon)
 
-Pretrained deepfake detection model using public research models:
+Video deepfake detection capabilities are currently in development:
 
- Model: DeepFakeDetection (e.g., `deeperforensics`, `DFDC` from Meta or FaceForensics++)
- Input: Sampled video frames (e.g., 1 per second)
- Pipeline:
+ Planned Model: DeepFakeDetection (e.g., `deeperforensics`, `DFDC` from Meta or FaceForensics++)
+ Planned Input: Sampled video frames (e.g., 1 per second)
+ Planned Pipeline:
 
    Extract frames using FFmpeg
    Classify each frame
    Aggregate frame scores to give final probability
- Hosting: Same FastAPI backend or a separate microservice
+ Planned Hosting: Same FastAPI backend or a separate microservice
 
 Media Routing Logic
 
@@ -104,7 +104,7 @@ Media Routing Logic
 start
 \:User uploads file;
 if (Is it a video?) then (yes)
-\:Use pre-trained deepfake model;
+\:Return "Coming Soon" message;
 else (no)
 \:Use custom image model;
 endif
@@ -131,28 +131,28 @@ Step 1: Image Dataset Collection & Model Training
     Fine-tune last few layers.
     Save best model (`model.pt`) based on validation accuracy.
 
-Step 2: Pretrained Video Detection Integration
+Step 2: Video Detection Integration (Coming Soon)
 
-1. Select Model:
+1. Planned Model Selection:
 
-    Use HuggingFace model: e.g., `jonas/Deepfake-DFDC`.
-2. Create Frame Sampler:
+    Will use HuggingFace model: e.g., `jonas/Deepfake-DFDC`.
+2. Planned Frame Sampler:
 
-    Use FFmpeg to extract 1 frame/sec.
-    Pass each frame through the model.
-3. Score Aggregation:
+    Will use FFmpeg to extract 1 frame/sec.
+    Will pass each frame through the model.
+3. Planned Score Aggregation:
 
-    Average frame probabilities for final result.
+    Will average frame probabilities for final result.
 
 Step 3: Backend Setup
 
 1. FastAPI endpoints:
 
     `/detect-image`: Accept image upload, run custom model.
-    `/detect-video`: Accept video upload/URL, extract & analyze frames.
+    `/detect-video`: Currently returns "coming soon" message (video analysis in development).
 2. Model Loader:
 
-    Load PyTorch model for image, load pretrained HuggingFace pipeline for video.
+    Load PyTorch model for image, video pipeline coming soon.
 3. Deploy:
 
     Containerize using Docker.
@@ -194,26 +194,26 @@ Week 3–4: Image Model Training
 
 Week 5: Backend Development
 
- Build FastAPI service with `/detect-image` and `/detect-video`
- Integrate PyTorch model and pretrained deepfake detector
- Implement FFmpeg-based video frame extractor
+ Build FastAPI service with `/detect-image` and `/detect-video` (coming soon)
+ Integrate PyTorch model for images
+ Video detection integration planned for future release
 
 Week 6: Frontend Development
 
  Build upload interface and results page using Vite + TailwindCSS
  Connect frontend to backend via REST APIs
- Test end-to-end upload -> detect -> result flow
+ Test end-to-end upload -> detect -> result flow for images
 
 Week 7: Testing and Tuning
 
- Unit + integration testing of detection API
+ Unit + integration testing of image detection API
  Tune frontend for usability (especially for older users)
  Add simple explanations for results
 
 Week 8: Deployment & Wrap-Up
 
  Deploy backend and frontend to cloud platforms
- Perform final tests on mobile and desktop
+ Perform final tests on mobile and desktop for image detection
  Document usage steps and limitations
 
  Gathering Results
@@ -222,9 +222,9 @@ To evaluate the success of the AI content detection tool, the following methods 
 
 = Functional Validation
 
- Upload a diverse set of known real and AI-generated media to verify consistent and accurate classification.
- Manually inspect results for edge cases (e.g., images with distortions, low-res video).
- Confirm that both image and video detection paths work as expected via backend logs and frontend feedback.
+ Upload a diverse set of known real and AI-generated images to verify consistent and accurate classification.
+ Manually inspect results for edge cases (e.g., images with distortions).
+ Confirm that image detection works as expected via backend logs and frontend feedback.
 
 = Usability Testing
 
@@ -241,8 +241,8 @@ To evaluate the success of the AI content detection tool, the following methods 
  Track:
 
    Accuracy of image detection model on a 20% held-out test set
-   Video detection average confidence vs ground truth (on a labeled sample set)
-   Average API response time for image and video uploads
+   Average API response time for image uploads
+   Video detection metrics will be tracked when feature is released
 
 = Post-launch Improvements
 
@@ -250,4 +250,5 @@ To evaluate the success of the AI content detection tool, the following methods 
 
    Model accuracy via dataset expansion
    UI/UX refinements for clarity
-   Performance optimizations (e.g., async frame extraction, better loading indicators)
+   Performance optimizations for image processing
+   Video detection capabilities when ready for release

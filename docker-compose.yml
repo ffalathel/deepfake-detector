@@ -1,51 +1,26 @@
-version: '3.8'
-
+# Simplified docker-compose for easy deployment
 services:
-  ai-detector:
-    image: ai-detector:latest
-    container_name: ai-detector-backend
+  deepfake-detector:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    container_name: deepfake-detector-app
     ports:
-      - "8000:8000"
+      - "3000:3000"  # Frontend
+      - "8000:8000"  # Backend API
     environment:
       - TRAINING_MODE=false
-      - CUDA_VISIBLE_DEVICES=0  # Set to empty string for CPU-only
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
     volumes:
       # Mount models directory for easy model updates
-      - ./backend/models:/app/models:ro
+      - ./backend/models:/app/backend/models:ro
       # Mount logs directory for persistence
-      - ./backend/logs:/app/logs
+      - ./backend/logs:/app/backend/logs
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
-    networks:
-      - ai-detector-network
-
-  # Optional: Add a simple test client
-  test-client:
-    image: curlimages/curl:latest
-    container_name: ai-detector-test
-    depends_on:
-      - ai-detector
-    command: >
-      sh -c "
-        echo 'Waiting for service to be ready...' &&
-        sleep 10 &&
-        echo 'Testing health endpoint...' &&
-        curl -f http://ai-detector:8000/health &&
-        echo 'Health check passed!' &&
-        echo 'Service is ready for testing!'
-      "
-    networks:
-      - ai-detector-network
-
-networks:
-  ai-detector-network:
-    driver: bridge
-
-volumes:
-  model-storage:
-    driver: local
+      start_period: 60s

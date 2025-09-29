@@ -1,4 +1,4 @@
-# Use Python 3.11 slim image for smaller size
+# Simple single-stage Dockerfile for the entire application
 FROM python:3.11-slim
 
 # Set environment variables
@@ -20,33 +20,37 @@ RUN apt-get update && apt-get install -y \
     libstdc++6 \
     libc6 \
     curl \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
-COPY backend/requirements.txt .
-
-# Install Python dependencies
+# Copy backend requirements and install Python dependencies
+COPY backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r backend/requirements.txt
 
-# Copy the entire backend directory
-COPY backend/ .
+# Copy frontend package.json and install Node dependencies
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && npm ci --only=production
+
+# Copy the entire application
+COPY . .
 
 # Create necessary directories
-RUN mkdir -p models logs data/fake data/real
+RUN mkdir -p backend/models backend/logs backend/data/fake backend/data/real
 
-# Copy model files (if they exist)
-COPY backend/models/ ./models/
+# Build frontend
+RUN cd frontend && npm run build
 
-# Expose port
-EXPOSE 8000
+# Expose ports
+EXPOSE 8000 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start both services
+CMD ["sh", "-c", "cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000 & cd frontend && npm start & wait"]

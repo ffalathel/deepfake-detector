@@ -12,7 +12,7 @@ Welcome to AI Content Detector — a simple, friendly tool that helps you figure
  🧩 What It Does
 
 ✅ Detects AI-generated images using a custom-trained model  
-🎥 Detects deepfake videos using a pretrained video classifier  
+🎥 Video deepfake detection - Coming Soon!  
 🧼 Clean and simple web interface  
 📱 Works on phones and computers  
 💡 Gives a short explanation along with the result
@@ -21,13 +21,14 @@ Welcome to AI Content Detector — a simple, friendly tool that helps you figure
 
  🛠️ How It Works
 
-This tool has two brains:
+This tool currently has one brain:
 
 - 🖼️ A custom-trained model for images — built using real and fake samples from Midjourney, DALL·E, and more.
-- 🎞️ A plug-and-play smart model for videos — using research-grade tools like DeepFake Detection Challenge (DFDC) models.
+- 🎞️ Video detection capabilities are coming soon — we're working on integrating research-grade tools like DeepFake Detection Challenge (DFDC) models.
 
-Your media is sent securely to our detector, processed, and you get a clear result:  
-“Looks Real” or “Possibly AI-Generated”, with a short reason why.
+Your images are sent securely to our detector, processed, and you get a clear result:  
+"Looks Real" or "Possibly AI-Generated", with a short reason why.  
+Video analysis will be available soon!
 
 ---
 
@@ -37,7 +38,7 @@ Your media is sent securely to our detector, processed, and you get a clear resu
 |------------|-----------------------------|
 | Frontend   | Vite + React + Tailwind CSS |
 | Backend    | FastAPI + PyTorch           |
-| Video AI   | Pretrained DFDC model       |
+| Video AI   | Coming Soon - DFDC model    |
 | Hosting    | Vercel + Render             |
 
 ---

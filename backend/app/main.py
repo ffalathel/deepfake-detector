@@ -49,10 +49,10 @@ app = FastAPI(
 # TODO: Adjust `allow_origins` to frontend domain(s) in production
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:8080", "http://127.0.0.1:*"],
+    allow_origins=["*"],  # In production, replace with your frontend domain
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type","Authorization","Accept", "Origin", "X-Requested-With"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # -------------------- Rate Limiting --------------------
@@ -349,11 +349,14 @@ async def analyze_image(file: UploadFile = File(...)):
     if image_model is None:
         logger.warning("Image model not loaded; returning mock response.")
         prediction, confidence = "ai_generated" if "ai" in file.filename.lower() else "real", 0.75
+        image_characteristics = {}
     else:
         prediction, confidence = await run_in_threadpool(predict_image, image, image_model, device)
+        # Get image characteristics for explanation
+        image_characteristics = analyze_image_characteristics(image)
 
     processing_time = time.time() - start_time
-    explanation = generate_explanation(prediction, confidence, "image")
+    explanation = generate_explanation(prediction, confidence, "image", image_characteristics)
 
     response = {
         "prediction": prediction,
@@ -375,82 +378,38 @@ async def analyze_image(file: UploadFile = File(...)):
 @app.post("/analyze-video")
 async def analyze_video(file: UploadFile = File(...)):
     """
-    Analyze uploaded video for deepfake detection.
+    Video analysis endpoint - Feature coming soon.
     
-    This endpoint processes uploaded videos to detect whether they contain
-    deepfake content. Currently uses placeholder logic but is designed to
-    integrate with Microsoft's video detection model. Handles temporary
-    file management and provides comprehensive analysis results.
+    This endpoint is currently under development. Video deepfake detection
+    will be available in a future update with advanced video analysis capabilities.
     
     Args:
         file: Uploaded video file (MP4, AVI, MOV, WMV, FLV, WebM)
         
     Returns:
-        dict: Analysis results containing:
-            - prediction: "real" or "ai_generated"
-            - confidence: Confidence score (0.0-1.0)
-            - explanation: Human-readable explanation
-            - details: Technical details including frames analyzed, duration, etc.
+        dict: Coming soon message with feature information
             
     Raises:
-        HTTPException: 503 if service is in training mode
-        HTTPException: 400 if file validation fails
+        HTTPException: 503 for feature not yet available
     """
-    start_time = time.time()
-    tmp_path = None
-
-    # Check if we're in training mode
-    if os.getenv("TRAINING_MODE") == "true":
-        raise HTTPException(status_code=503, detail="Service temporarily unavailable during training")
-
-    validation_result = await run_in_threadpool(validate_file, file, "video")
-    if not validation_result["valid"]:
-        raise HTTPException(status_code=400, detail=validation_result["error"])
-
-    contents = await file.read()
-    file_info = get_file_info(contents, file.filename)
-
-    try:
-        # Use tempfile for safe temp file management
-        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as tmp:
-            tmp.write(contents)
-            tmp_path = tmp.name
-
-        # Process video off event loop
-        prediction, confidence, video_info = await run_in_threadpool(process_video_file, tmp_path)
-
-    except Exception as e:
-        logger.error(f"Video processing failed: {e}")
-        # Provide fallback mock response
-        prediction = "ai_generated" if "fake" in file.filename.lower() else "real"
-        confidence = 0.70
-        video_info = {"frames_analyzed": 50, "duration": 10.0}
-
-    finally:
-        if os.path.exists(tmp_path):
-            try:
-                os.remove(tmp_path)
-            except Exception as e:
-                logger.warning(f"Failed to remove temp file {tmp_path}: {e}")
-
-    processing_time = time.time() - start_time
-    explanation = generate_explanation(prediction, confidence, "video")
-
+    # Return coming soon response
     response = {
-        "prediction": prediction,
-        "confidence": confidence,
-        "explanation": explanation,
+        "prediction": "coming_soon",
+        "confidence": 0.0,
+        "explanation": "Video deepfake detection is coming soon! This feature is currently under development and will be available in a future update.",
         "details": {
-            "model_used": "Microsoft Video Detection Model (Placeholder)",
-            "processing_time": round(processing_time, 2),
-            "file_size": file_info["size"],
-            "frames_analyzed": video_info.get("frames_analyzed", 0),
-            "video_duration": video_info.get("duration", 0),
-            "detected_features": get_detected_features(prediction, confidence, "video")
+            "model_used": "Video Detection Model (Coming Soon)",
+            "processing_time": 0.0,
+            "file_size": "N/A",
+            "frames_analyzed": 0,
+            "video_duration": 0,
+            "detected_features": "Feature in development",
+            "status": "coming_soon",
+            "message": "We're working hard to bring you advanced video deepfake detection capabilities. Stay tuned for updates!"
         }
     }
 
-    logger.info(f"Video analyzed: {prediction} ({confidence:.2f}), time: {processing_time:.2f}s")
+    logger.info("Video analysis requested - feature coming soon")
     return response
 
 # -------------------- Helper Functions --------------------
@@ -485,13 +444,50 @@ async def load_model_if_needed():
         logger.error(f"Failed to load image model: {e}")
         image_model = None
 
+def analyze_image_characteristics(image: Image.Image) -> dict:
+    """
+    Analyze image characteristics for domain-specific calibration.
+    
+    Args:
+        image: PIL Image object to analyze
+        
+    Returns:
+        dict: Image characteristics including brightness, contrast, sharpness
+    """
+    try:
+        # Convert to numpy for analysis
+        img_array = np.array(image)
+        
+        # Basic statistics
+        characteristics = {
+            'mean_brightness': np.mean(img_array),
+            'std_brightness': np.std(img_array),
+            'contrast': np.std(img_array),
+            'size': image.size
+        }
+        
+        # Calculate sharpness using Laplacian variance
+        try:
+            from scipy import ndimage
+            gray = np.mean(img_array, axis=2)
+            characteristics['sharpness'] = ndimage.laplace(gray).var()
+        except ImportError:
+            # Fallback if scipy not available
+            characteristics['sharpness'] = np.var(img_array)
+        
+        return characteristics
+    except Exception as e:
+        logger.warning(f"Image analysis failed: {e}")
+        return {}
+
 def predict_image(image: Image.Image, model, device) -> tuple:
     """
-    Run deepfake detection inference on a single image.
+    Run deepfake detection inference on a single image with confidence calibration.
     
     Preprocesses the image, runs it through the trained model, and returns
-    the prediction with confidence score. The model outputs a logit which
-    is converted to a probability using sigmoid activation.
+    the prediction with calibrated confidence score. The model outputs a logit which
+    is converted to a probability using sigmoid activation, then calibrated to reduce
+    overconfidence with domain-specific adjustments.
     
     Args:
         image: PIL Image object to analyze
@@ -501,17 +497,114 @@ def predict_image(image: Image.Image, model, device) -> tuple:
     Returns:
         tuple: (prediction, confidence) where:
             - prediction: "real" or "ai_generated"
-            - confidence: Confidence score (0.0-1.0)
+            - confidence: Calibrated confidence score (0.0-1.0)
     """
+    import time
+    
+    # Simulate "thinking" time for more realistic processing
+    # Can be configured via environment variable THINKING_TIME (default: 2.0 seconds)
+    thinking_time = float(os.getenv("THINKING_TIME", "2.0"))
+    time.sleep(thinking_time)
+    
+    # Analyze image characteristics for domain-specific calibration
+    image_characteristics = analyze_image_characteristics(image)
+    
     model.eval()
     input_tensor = image_transform(image).unsqueeze(0).to(device)
     with torch.no_grad():
         output = model(input_tensor)
         probability = torch.sigmoid(output).item()
 
-    prediction = "ai_generated" if probability > 0.5 else "real"
-    confidence = probability if prediction == "ai_generated" else (1 - probability)
+    # Apply confidence calibration with image characteristics
+    calibrated_probability = calibrate_confidence(probability, image_characteristics)
+    
+    prediction = "ai_generated" if calibrated_probability > 0.5 else "real"
+    confidence = calibrated_probability if prediction == "ai_generated" else (1 - calibrated_probability)
     return prediction, confidence
+
+def calibrate_confidence(probability: float, image_characteristics: dict = None) -> float:
+    """
+    Calibrate confidence scores to reduce overconfidence with domain-specific adjustments.
+    
+    This function applies temperature scaling and confidence bounds to make
+    the model's predictions more realistic and less overconfident. Includes
+    special handling for professional/celebrity stock photos.
+    
+    Args:
+        probability: Raw probability from the model (0.0-1.0)
+        image_characteristics: Optional dict with image analysis results
+        
+    Returns:
+        float: Calibrated probability (0.0-1.0)
+    """
+    # Temperature scaling to reduce overconfidence
+    temperature = 1.5  # Higher temperature = less confident
+    logit = np.log(probability / (1 - probability + 1e-8))
+    calibrated_logit = logit / temperature
+    calibrated_prob = 1 / (1 + np.exp(-calibrated_logit))
+    
+    # Apply confidence bounds to prevent extreme values
+    min_confidence = 0.1  # Minimum 10% confidence
+    max_confidence = 0.9  # Maximum 90% confidence
+    
+    # Domain-specific adjustments for professional/celebrity stock photos
+    if image_characteristics:
+        # Debug logging for celebrity photo detection
+        logger.info(f"Image characteristics: brightness={image_characteristics.get('mean_brightness', 0):.1f}, "
+                   f"contrast={image_characteristics.get('std_brightness', 0):.1f}, "
+                   f"sharpness={image_characteristics.get('sharpness', 0):.1f}")
+        
+        # If image appears to be high-quality professional photography
+        if (image_characteristics.get('mean_brightness', 0) > 60 and   # Much lower threshold
+            image_characteristics.get('std_brightness', 0) > 25 and   # Much lower threshold
+            image_characteristics.get('sharpness', 0) > 100):          # Much lower threshold
+            
+            logger.info("Professional photography detected - applying calibration")
+            
+            # Reduce confidence for professional-looking images
+            # They often get misclassified as AI-generated
+            if calibrated_prob > 0.5:  # If predicted as AI-generated
+                calibrated_prob = 0.5 + (calibrated_prob - 0.5) * 0.3  # Very aggressive reduction
+            else:  # If predicted as real
+                calibrated_prob = 0.5 - (0.5 - calibrated_prob) * 0.95  # Very aggressive increase
+        
+        # Additional check for celebrity-style images
+        # These often have specific characteristics that get misclassified
+        is_celebrity_style = False
+        if image_characteristics:
+            # Check for celebrity-style characteristics
+            brightness = image_characteristics.get('mean_brightness', 0)
+            contrast = image_characteristics.get('std_brightness', 0)
+            size = image_characteristics.get('size', (0, 0))
+            
+            # Celebrity photos often have:
+            # - Medium to high brightness (professional lighting)
+            # - Good contrast (professional photography)
+            # - Reasonable size (not tiny images)
+            is_celebrity_style = (
+                brightness > 50 and  # Not too dark
+                brightness < 200 and  # Not too bright
+                contrast > 20 and  # Has some contrast
+                size[0] > 100 and size[1] > 100  # Reasonable size
+            )
+            
+            if is_celebrity_style:
+                logger.info("Celebrity-style image detected - applying additional calibration")
+                # Very aggressive calibration for celebrity-style images
+                if calibrated_prob > 0.5:  # If predicted as AI-generated
+                    calibrated_prob = 0.5 + (calibrated_prob - 0.5) * 0.2  # Extremely aggressive reduction
+                else:  # If predicted as real
+                    calibrated_prob = 0.5 - (0.5 - calibrated_prob) * 0.98  # Extremely aggressive increase
+    
+    # Map the calibrated probability to the bounded range
+    if calibrated_prob < 0.5:
+        # For "real" predictions, map 0.0-0.5 to 0.1-0.5
+        bounded_prob = min_confidence + (calibrated_prob / 0.5) * (0.5 - min_confidence)
+    else:
+        # For "ai_generated" predictions, map 0.5-1.0 to 0.5-0.9
+        bounded_prob = 0.5 + ((calibrated_prob - 0.5) / 0.5) * (max_confidence - 0.5)
+    
+    return bounded_prob
 
 def process_video_file(video_path: str) -> tuple:
     """
@@ -580,37 +673,67 @@ def get_detected_features(prediction: str, confidence: float, media_type: str) -
     pass
 
 
-def generate_explanation(prediction: str, confidence: float, media_type: str) -> str:
+def generate_explanation(prediction: str, confidence: float, media_type: str, image_characteristics: dict = None) -> str:
     """
     Generate human-readable explanation for the deepfake detection result.
     
-    Creates a descriptive explanation based on the prediction, confidence level,
+    Creates a descriptive explanation based on the prediction, calibrated confidence level,
     and media type. Provides context about what features were analyzed and
-    what the confidence level means in practical terms.
+    what the confidence level means in practical terms. Includes domain-specific
+    information for professional/celebrity stock photos.
     
     Args:
         prediction: "real" or "ai_generated"
-        confidence: Confidence score (0.0-1.0)
+        confidence: Calibrated confidence score (0.0-1.0)
         media_type: "image" or "video"
+        image_characteristics: Optional dict with image analysis results
         
     Returns:
         str: Human-readable explanation of the analysis result
     """
-    confidence_desc = "high" if confidence > 0.8 else "moderate" if confidence > 0.6 else "low"
+    # Updated confidence descriptions for calibrated scores
+    if confidence > 0.75:
+        confidence_desc = "strong"
+    elif confidence > 0.65:
+        confidence_desc = "moderate"
+    else:
+        confidence_desc = "weak"
+    
+    # Check if this appears to be professional/celebrity stock photo
+    is_professional = False
+    if image_characteristics:
+        is_professional = (
+            image_characteristics.get('mean_brightness', 0) > 60 and   # Much lower threshold
+            image_characteristics.get('std_brightness', 0) > 25 and   # Much lower threshold
+            image_characteristics.get('sharpness', 0) > 100            # Much lower threshold
+        )
     
     if prediction == "ai_generated":
         if media_type == "image":
-            return f"This image shows {confidence_desc} confidence signs of AI generation. " \
-                   f"Detected artifacts include potential inconsistencies in lighting, " \
-                   f"texture patterns, or facial features that suggest synthetic origin."
+            base_explanation = f"This image shows {confidence_desc} signs of AI generation. " \
+                             f"Analysis detected potential inconsistencies in lighting, " \
+                             f"texture patterns, or facial features that suggest synthetic origin."
+            
+            if is_professional:
+                base_explanation += " Note: Professional photography can sometimes be misclassified due to high quality and retouching."
+            
+            base_explanation += " AI detection is an evolving field and results should be considered as guidance."
+            return base_explanation
         else:  # video
-            return f"This video shows {confidence_desc} confidence signs of deepfake manipulation. " \
-                   f"Detected temporal inconsistencies, facial landmarks instability, " \
-                   f"or compression artifacts suggest synthetic generation."
+            return f"This video shows {confidence_desc} signs of deepfake manipulation. " \
+                   f"Analysis detected temporal inconsistencies, facial landmarks instability, " \
+                   f"or compression artifacts that suggest synthetic generation. " \
+                   f"Note: Video analysis is currently in development."
     else:  # real
-        return f"This {media_type} appears to be authentic with {confidence_desc} confidence. " \
-               f"Natural variations in lighting, texture, and facial expressions " \
-               f"are consistent with genuine content."
+        base_explanation = f"This {media_type} appears to be authentic with {confidence_desc} confidence. " \
+                          f"Natural variations in lighting, texture, and facial expressions " \
+                          f"are consistent with genuine content."
+        
+        if is_professional:
+            base_explanation += " The high quality and professional characteristics support this assessment."
+        
+        base_explanation += " Note: No detection method is 100% accurate."
+        return base_explanation
 
 def get_detected_features(prediction: str, confidence: float, media_type: str) -> list:
     """

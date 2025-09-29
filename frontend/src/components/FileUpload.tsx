@@ -22,19 +22,19 @@ const FileUpload = ({ onFileSelect, selectedFile, language = 'en' }: FileUploadP
   const content = {
     en: {
       dropText: "Drop your file here",
-      browseText: "Or click to browse for images and videos",
+      browseText: "Or click to browse for images (video detection coming soon!)",
       chooseFile: "Choose File",
       fileSelected: "File Selected",
       chooseDifferent: "Choose Different File",
-      supports: "Supports: JPEG, PNG, GIF, WebP, MP4, WebM, MOV • Max 50MB"
+      supports: "Supports: JPEG, PNG, GIF, WebP • Max 50MB (Video support coming soon!)"
     },
     ar: {
       dropText: "أفلت ملفك هنا",
-      browseText: "أو انقر للتصفح للصور والفيديوهات",
+      browseText: "أو انقر للتصفح للصور (كشف الفيديو قريباً!)",
       chooseFile: "اختر ملف",
       fileSelected: "تم اختيار الملف",
       chooseDifferent: "اختر ملف مختلف",
-      supports: "يدعم: JPEG, PNG, GIF, WebP, MP4, WebM, MOV • الحد الأقصى 50 ميجابايت"
+      supports: "يدعم: JPEG, PNG, GIF, WebP • الحد الأقصى 50 ميجابايت (دعم الفيديو قريباً!)"
     }
   };
 
@@ -44,12 +44,12 @@ const FileUpload = ({ onFileSelect, selectedFile, language = 'en' }: FileUploadP
     if (files && files[0]) {
       const file = files[0];
       
-      // Check file type
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm', 'video/mov'];
+      // Check file type (video support coming soon)
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
       if (!validTypes.includes(file.type)) {
         alert(language === 'en' 
-          ? 'Please select a valid image (JPEG, PNG, GIF, WebP) or video (MP4, WebM, MOV) file.'
-          : 'يرجى اختيار ملف صورة صحيح (JPEG, PNG, GIF, WebP) أو ملف فيديو (MP4, WebM, MOV).'
+          ? 'Please select a valid image file (JPEG, PNG, GIF, WebP). Video support is coming soon!'
+          : 'يرجى اختيار ملف صورة صحيح (JPEG, PNG, GIF, WebP). دعم الفيديو قريباً!'
         );
         return;
       }
@@ -124,7 +124,7 @@ const FileUpload = ({ onFileSelect, selectedFile, language = 'en' }: FileUploadP
       <input
         ref={inputRef}
         type="file"
-        accept="image/*,video/*"
+        accept="image/*"
         onChange={handleChange}
         className="hidden"
       />

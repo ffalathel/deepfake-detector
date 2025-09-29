@@ -1,7 +1,107 @@
-backend/models/checkpoint.pt
-backend/models/checkpoint_*epoch*99.pt
-backend/models/image_model.pt
-backend/models/*.pt
-backend/models/*.pth
-backend/models/*.ckpt
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+backend/venv/
+
+# PyTorch
+*.pth
+*.pt.bak
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+backend/logs/
+
+# Data files (keep structure but not actual data)
+backend/data/fake/*
+backend/data/real/*
+!backend/data/fake/.gitkeep
+!backend/data/real/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+/temp/
+
+# Node.js (for frontend)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Build outputs
+*.tgz
+*.tar.gz
+
+# Docker
+.dockerignore
+
+# Deployment scripts (keep but don't track execution)
+# deploy.sh
+# deploy-production.sh
+# start_services.sh
 backend/data
+# Analysis and test files
+backend/analyze_celebrity_issue.py
+backend/test_model_analysis.py
+
+# Keep model files but exclude backups
+*.pt.bak
+*.pth.bak

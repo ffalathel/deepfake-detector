@@ -242,16 +242,16 @@ export default function Home() {
     en: {
       hero: {
         title: "Advanced Deepfake Detection",
-        subtitle: "Professional AI-powered analysis for images and videos",
-        description: "Our sophisticated deep learning models provide accurate detection of AI-generated content, helping you navigate the digital landscape with confidence and trust.",
+        subtitle: "Professional AI-powered analysis for images",
+        description: "Our sophisticated deep learning model provides accurate detection of AI-generated deepfakes, helping you navigate the digital landscape with confidence and trust.",
         cta: "Start Analysis"
       },
       about: {
         title: "About the Creator",
         name: "Fahada Alathel",
         role: "Student at University of South Florida",
-        story: "I developed this deepfake detector for my older family members who were increasingly concerned about the authenticity of content they encountered online. This project represents my commitment to creating technology that serves and protects our communities.",
-        motivation: "For my older family members"
+        story: "I built this deepfake detector as a tool to help people spot manipulated images and videos. Unlike AI-generated art, which often has telltale signs, deepfakes are getting harder to distinguish from real content. Seeing my family share questionable videos in our group chat made me realize how much we need better tools to verify what we're seeing online.",
+        motivation: "Providing clarity when nothing seems real"
       },
       awareness: {
         title: "Understanding the Threat",
@@ -267,7 +267,7 @@ export default function Home() {
       features: {
         title: "Advanced Detection Technology",
         image: "Sophisticated image analysis using custom-trained deep learning models",
-        video: "State-of-the-art video deepfake detection with research-grade accuracy"
+        video: "Video deepfake detection - Coming Soon! Advanced video analysis capabilities are currently in development."
       },
       nav: {
         home: "Home",
@@ -304,7 +304,7 @@ export default function Home() {
       features: {
         title: "تقنية الكشف المتقدمة",
         image: "تحليل متطور للصور باستخدام نماذج التعلم العميق المدربة خصيصاً",
-        video: "كشف متقدم للفيديوهات المزيفة بدقة على مستوى البحث العلمي"
+        video: "كشف الفيديوهات المزيفة - قريباً! قدرات التحليل المتقدمة للفيديو قيد التطوير حالياً."
       },
       nav: {
         home: "الرئيسية",
@@ -439,7 +439,7 @@ export default function Home() {
                       {language === 'en' ? 'Upload Your Media' : 'ارفع الوسائط الخاصة بك'}
                     </h2>
                     <p className="text-luxury-700 font-medium">
-                      {language === 'en' ? 'Choose an image or video to analyze' : 'اختر صورة أو فيديو للتحليل'}
+                      {language === 'en' ? 'Choose an image to analyze (video detection coming soon!)' : 'اختر صورة للتحليل (كشف الفيديو قريباً!)'}
                     </p>
                   </motion.div>
 
@@ -607,7 +607,7 @@ export default function Home() {
                   <span className="text-purple-600 text-2xl">🎥</span>
                 </motion.div>
                 <h3 className="heading-md text-luxury-900 mb-4">
-                  {language === 'en' ? 'Video Detection' : 'كشف الفيديو'}
+                  {language === 'en' ? 'Video Detection - Coming Soon!' : 'كشف الفيديو - قريباً!'}
                 </h3>
                 <p className="text-luxury-600 leading-relaxed">
                   {currentContent.features.video}
