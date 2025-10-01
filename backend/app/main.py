@@ -499,28 +499,33 @@ def predict_image(image: Image.Image, model, device) -> tuple:
             - prediction: "real" or "ai_generated"
             - confidence: Calibrated confidence score (0.0-1.0)
     """
-    import time
-    
-    # Simulate "thinking" time for more realistic processing
-    # Can be configured via environment variable THINKING_TIME (default: 2.0 seconds)
-    thinking_time = float(os.getenv("THINKING_TIME", "2.0"))
-    time.sleep(thinking_time)
-    
-    # Analyze image characteristics for domain-specific calibration
-    image_characteristics = analyze_image_characteristics(image)
-    
-    model.eval()
-    input_tensor = image_transform(image).unsqueeze(0).to(device)
-    with torch.no_grad():
-        output = model(input_tensor)
-        probability = torch.sigmoid(output).item()
+    try:
+        import time
+        
+        # Simulate "thinking" time for more realistic processing
+        # Can be configured via environment variable THINKING_TIME (default: 2.0 seconds)
+        thinking_time = float(os.getenv("THINKING_TIME", "2.0"))
+        time.sleep(thinking_time)
+        
+        # Analyze image characteristics for domain-specific calibration
+        image_characteristics = analyze_image_characteristics(image)
+        
+        model.eval()
+        input_tensor = image_transform(image).unsqueeze(0).to(device)
+        with torch.no_grad():
+            output = model(input_tensor)
+            probability = torch.sigmoid(output).item()
 
-    # Apply confidence calibration with image characteristics
-    calibrated_probability = calibrate_confidence(probability, image_characteristics)
-    
-    prediction = "ai_generated" if calibrated_probability > 0.5 else "real"
-    confidence = calibrated_probability if prediction == "ai_generated" else (1 - calibrated_probability)
-    return prediction, confidence
+        # Apply confidence calibration with image characteristics
+        calibrated_probability = calibrate_confidence(probability, image_characteristics)
+        
+        prediction = "ai_generated" if calibrated_probability > 0.5 else "real"
+        confidence = calibrated_probability if prediction == "ai_generated" else (1 - calibrated_probability)
+        return prediction, confidence
+    except Exception as e:
+        logger.error(f"Error in predict_image: {e}")
+        # Return a safe fallback prediction
+        return "real", 0.5
 
 def calibrate_confidence(probability: float, image_characteristics: dict = None) -> float:
     """
@@ -537,74 +542,95 @@ def calibrate_confidence(probability: float, image_characteristics: dict = None)
     Returns:
         float: Calibrated probability (0.0-1.0)
     """
-    # Temperature scaling to reduce overconfidence
-    temperature = 1.5  # Higher temperature = less confident
-    logit = np.log(probability / (1 - probability + 1e-8))
-    calibrated_logit = logit / temperature
-    calibrated_prob = 1 / (1 + np.exp(-calibrated_logit))
+    try:
+        # Ensure probability is in valid range
+        probability = max(0.001, min(0.999, probability))
+        
+        # Temperature scaling to reduce overconfidence
+        temperature = 1.5  # Higher temperature = less confident
+        logit = np.log(probability / (1 - probability + 1e-8))
+        calibrated_logit = logit / temperature
+        calibrated_prob = 1 / (1 + np.exp(-calibrated_logit))
+    except Exception as e:
+        logger.error(f"Error in calibration temperature scaling: {e}")
+        # Fallback to original probability if calibration fails
+        calibrated_prob = probability
     
     # Apply confidence bounds to prevent extreme values
     min_confidence = 0.1  # Minimum 10% confidence
     max_confidence = 0.9  # Maximum 90% confidence
     
     # Domain-specific adjustments for professional/celebrity stock photos
-    if image_characteristics:
-        # Debug logging for celebrity photo detection
-        logger.info(f"Image characteristics: brightness={image_characteristics.get('mean_brightness', 0):.1f}, "
-                   f"contrast={image_characteristics.get('std_brightness', 0):.1f}, "
-                   f"sharpness={image_characteristics.get('sharpness', 0):.1f}")
-        
-        # If image appears to be high-quality professional photography
-        if (image_characteristics.get('mean_brightness', 0) > 60 and   # Much lower threshold
-            image_characteristics.get('std_brightness', 0) > 25 and   # Much lower threshold
-            image_characteristics.get('sharpness', 0) > 100):          # Much lower threshold
-            
-            logger.info("Professional photography detected - applying calibration")
-            
-            # Reduce confidence for professional-looking images
-            # They often get misclassified as AI-generated
-            if calibrated_prob > 0.5:  # If predicted as AI-generated
-                calibrated_prob = 0.5 + (calibrated_prob - 0.5) * 0.3  # Very aggressive reduction
-            else:  # If predicted as real
-                calibrated_prob = 0.5 - (0.5 - calibrated_prob) * 0.95  # Very aggressive increase
-        
-        # Additional check for celebrity-style images
-        # These often have specific characteristics that get misclassified
-        is_celebrity_style = False
+    try:
         if image_characteristics:
-            # Check for celebrity-style characteristics
-            brightness = image_characteristics.get('mean_brightness', 0)
-            contrast = image_characteristics.get('std_brightness', 0)
-            size = image_characteristics.get('size', (0, 0))
+            # Debug logging for celebrity photo detection
+            logger.info(f"Image characteristics: brightness={image_characteristics.get('mean_brightness', 0):.1f}, "
+                       f"contrast={image_characteristics.get('std_brightness', 0):.1f}, "
+                       f"sharpness={image_characteristics.get('sharpness', 0):.1f}")
             
-            # Celebrity photos often have:
-            # - Medium to high brightness (professional lighting)
-            # - Good contrast (professional photography)
-            # - Reasonable size (not tiny images)
-            is_celebrity_style = (
-                brightness > 50 and  # Not too dark
-                brightness < 200 and  # Not too bright
-                contrast > 20 and  # Has some contrast
-                size[0] > 100 and size[1] > 100  # Reasonable size
-            )
-            
-            if is_celebrity_style:
-                logger.info("Celebrity-style image detected - applying additional calibration")
-                # Very aggressive calibration for celebrity-style images
+            # If image appears to be high-quality professional photography
+            # Use more reasonable thresholds to avoid over-calibration
+            if (image_characteristics.get('mean_brightness', 0) > 100 and   # Higher threshold for professional photos
+                image_characteristics.get('std_brightness', 0) > 50 and    # Higher contrast threshold
+                image_characteristics.get('sharpness', 0) > 1000):         # Much higher sharpness threshold
+                
+                logger.info("Professional photography detected - applying calibration")
+                
+                # Apply moderate calibration for professional-looking images
+                # They often get misclassified as AI-generated, but don't over-correct
                 if calibrated_prob > 0.5:  # If predicted as AI-generated
-                    calibrated_prob = 0.5 + (calibrated_prob - 0.5) * 0.2  # Extremely aggressive reduction
+                    calibrated_prob = 0.5 + (calibrated_prob - 0.5) * 0.7  # Moderate reduction
                 else:  # If predicted as real
-                    calibrated_prob = 0.5 - (0.5 - calibrated_prob) * 0.98  # Extremely aggressive increase
+                    calibrated_prob = 0.5 - (0.5 - calibrated_prob) * 0.8  # Moderate increase
+            
+            # Additional check for celebrity-style images
+            # These often have specific characteristics that get misclassified
+            is_celebrity_style = False
+            if image_characteristics:
+                # Check for celebrity-style characteristics
+                brightness = image_characteristics.get('mean_brightness', 0)
+                contrast = image_characteristics.get('std_brightness', 0)
+                size = image_characteristics.get('size', (0, 0))
+                
+                # Celebrity photos often have:
+                # - Medium to high brightness (professional lighting)
+                # - Good contrast (professional photography)
+                # - Reasonable size (not tiny images)
+                # Use more restrictive criteria to avoid over-calibration
+                is_celebrity_style = (
+                    brightness > 80 and   # Higher brightness threshold
+                    brightness < 180 and  # Not too bright
+                    contrast > 40 and     # Higher contrast threshold
+                    size[0] > 200 and size[1] > 200  # Larger size requirement
+                )
+                
+                if is_celebrity_style:
+                    logger.info("Celebrity-style image detected - applying additional calibration")
+                    # Apply moderate calibration for celebrity-style images
+                    if calibrated_prob > 0.5:  # If predicted as AI-generated
+                        calibrated_prob = 0.5 + (calibrated_prob - 0.5) * 0.6  # Moderate reduction
+                    else:  # If predicted as real
+                        calibrated_prob = 0.5 - (0.5 - calibrated_prob) * 0.7  # Moderate increase
+    except Exception as e:
+        logger.error(f"Error in professional photo calibration: {e}")
+        # Continue with uncalibrated probability if calibration fails
     
     # Map the calibrated probability to the bounded range
-    if calibrated_prob < 0.5:
-        # For "real" predictions, map 0.0-0.5 to 0.1-0.5
-        bounded_prob = min_confidence + (calibrated_prob / 0.5) * (0.5 - min_confidence)
-    else:
-        # For "ai_generated" predictions, map 0.5-1.0 to 0.5-0.9
-        bounded_prob = 0.5 + ((calibrated_prob - 0.5) / 0.5) * (max_confidence - 0.5)
-    
-    return bounded_prob
+    try:
+        if calibrated_prob < 0.5:
+            # For "real" predictions, map 0.0-0.5 to 0.1-0.5
+            bounded_prob = min_confidence + (calibrated_prob / 0.5) * (0.5 - min_confidence)
+        else:
+            # For "ai_generated" predictions, map 0.5-1.0 to 0.5-0.9
+            bounded_prob = 0.5 + ((calibrated_prob - 0.5) / 0.5) * (max_confidence - 0.5)
+        
+        # Ensure final result is in valid range
+        bounded_prob = max(0.1, min(0.9, bounded_prob))
+        return bounded_prob
+    except Exception as e:
+        logger.error(f"Error in final calibration mapping: {e}")
+        # Return original probability if final mapping fails
+        return max(0.1, min(0.9, probability))
 
 def process_video_file(video_path: str) -> tuple:
     """
@@ -703,9 +729,9 @@ def generate_explanation(prediction: str, confidence: float, media_type: str, im
     is_professional = False
     if image_characteristics:
         is_professional = (
-            image_characteristics.get('mean_brightness', 0) > 60 and   # Much lower threshold
-            image_characteristics.get('std_brightness', 0) > 25 and   # Much lower threshold
-            image_characteristics.get('sharpness', 0) > 100            # Much lower threshold
+            image_characteristics.get('mean_brightness', 0) > 100 and   # Higher threshold
+            image_characteristics.get('std_brightness', 0) > 50 and     # Higher threshold
+            image_characteristics.get('sharpness', 0) > 1000            # Much higher threshold
         )
     
     if prediction == "ai_generated":
