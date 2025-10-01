@@ -20,9 +20,9 @@ sleep 10
 
 echo "✅ Services started successfully!"
 echo "🌐 Frontend: http://localhost:3000"
-echo "🔧 Backend API: http://localhost:8000"
-echo "📚 API Docs: http://localhost:8000/docs"
-echo "❤️ Health Check: http://localhost:8000/health"
+echo "🔧 Backend API: https://ffalathel-deepfake-detector.hf.space"
+echo "📚 API Docs: https://ffalathel-deepfake-detector.hf.space/docs"
+echo "❤️ Health Check: https://ffalathel-deepfake-detector.hf.space/health"
 
 # Function to stop services
 stop_services() {

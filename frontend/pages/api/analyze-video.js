@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     formData.append('file', blob, file.originalFilename);
 
     // Call your FastAPI backend
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+    const backendUrl = process.env.BACKEND_URL || 'https://ffalathel-deepfake-detector.hf.space';
     const response = await fetch(`${backendUrl}/analyze-video`, {
       method: 'POST',
       body: formData,

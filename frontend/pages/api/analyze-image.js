@@ -31,17 +31,23 @@ export default async function handler(req, res) {
     const form = formidable({
       uploadDir: '/tmp',
       keepExtensions: true,
-      maxFileSize: 50 * 1024 * 1024, // 50MB
+      maxFileSize: 50 * 1024 * 1024,
       allowEmptyFiles: true,
       minFileSize: 0,
     });
 
     const [fields, files] = await form.parse(req);
-    const file = files.file[0];
-
-    if (!file) {
+    
+    // Debug logging
+    console.log('Parsed fields:', fields);
+    console.log('Parsed files:', files);
+    
+    if (!files || !files.file || !files.file[0]) {
+      console.error('No file found in request');
       return res.status(400).json({ error: 'No file uploaded' });
     }
+    
+    const file = files.file[0];
 
     // Store file reference for cleanup
     uploadedFile = file;
@@ -62,11 +68,15 @@ export default async function handler(req, res) {
     formData.append('file', blob, file.originalFilename);
 
     // Call your FastAPI backend
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+    const backendUrl = process.env.BACKEND_URL || 'https://ffalathel-deepfake-detector.hf.space';
+    console.log('Calling backend URL:', backendUrl);
+    
     const response = await fetch(`${backendUrl}/analyze-image`, {
       method: 'POST',
       body: formData,
     });
+    
+    console.log('Backend response status:', response.status);
 
     if (!response.ok) {
       throw new Error(`Backend error: ${response.status}`);

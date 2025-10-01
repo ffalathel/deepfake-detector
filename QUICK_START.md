@@ -49,9 +49,9 @@ docker run -d --name deepfake-detector-optimized -p 3000:3000 -p 8000:8000 deepf
 
 Once deployed, access your application at:
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
-- **Health Check**: http://localhost:8000/health
+- **Backend API**: https://ffalathel-deepfake-detector.hf.space
+- **API Documentation**: https://ffalathel-deepfake-detector.hf.space/docs
+- **Health Check**: https://ffalathel-deepfake-detector.hf.space/health
 
 ## 🔧 Management Commands
 

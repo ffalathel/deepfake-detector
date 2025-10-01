@@ -5,7 +5,7 @@ const nextConfig = {
   
   // Environment variables
   env: {
-    BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:8000',
+    BACKEND_URL: process.env.BACKEND_URL || 'https://ffalathel-deepfake-detector.hf.space',
     NEXT_PUBLIC_APP_NAME: 'AI Content Detector',
     NEXT_PUBLIC_APP_VERSION: '1.0.0',
   },

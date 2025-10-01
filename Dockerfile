@@ -50,7 +50,7 @@ EXPOSE 8000 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f https://ffalathel-deepfake-detector.hf.space/health || exit 1
 
 # Start both services
 CMD ["sh", "-c", "cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000 & cd frontend && npm start & wait"]

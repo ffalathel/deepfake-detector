@@ -10,7 +10,7 @@ RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-BASE_URL="http://localhost:8000"
+BASE_URL="https://ffalathel-deepfake-detector.hf.space"
 
 print_status() {
     echo -e "${BLUE}[TEST]${NC} $1"
