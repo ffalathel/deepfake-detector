@@ -1,7 +1,0 @@
-{
-  "version": 2,
-  "env": {
-    "NEXT_PUBLIC_API_URL": "https://deepfake-detector-backend.onrender.com",
-    "NODE_ENV": "production"
-  }
-}
