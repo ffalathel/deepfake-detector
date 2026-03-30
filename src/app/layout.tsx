@@ -25,6 +25,9 @@ export const metadata: Metadata = {
   description: "Advanced deepfake detection technology for images and videos. Built with precision and trust for a safer digital world.",
   keywords: ["deepfake", "AI detection", "image analysis", "video analysis", "misinformation", "trust"],
   authors: [{ name: "Fahada Alathel" }],
+  verification: {
+    google: "TiyqpN9lQoZ07dm8cWQEwCsRQ8a2k10L-DCct9HPIHg",
+  },
 };
 
 export const viewport: Viewport = {
