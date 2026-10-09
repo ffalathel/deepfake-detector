@@ -1,4 +1,4 @@
-# 🧠✨ Advanced Deepfake Detection System
+# Advanced Deepfake Detection System
 
 A comprehensive AI-powered deepfake detection platform that helps users identify AI-generated images and videos with high accuracy. Built with modern web technologies and sophisticated machine learning models.
 
@@ -8,21 +8,20 @@ A comprehensive AI-powered deepfake detection platform that helps users identify
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.68+-red)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-orange)
 
-## 🎯 Overview
+## Overview
 
 This project provides a complete deepfake detection solution with both image and video analysis capabilities. The system uses custom-trained deep learning models to detect AI-generated content with high precision, helping users navigate the digital landscape with confidence.
 
 ### Key Features
 
-- ✅ **Advanced Image Detection** - Custom-trained ResNet/EfficientNet models for accurate image analysis
-- 🎥 **Video Deepfake Detection** - Coming soon with temporal analysis capabilities
-- 🌐 **Modern Web Interface** - Responsive Next.js frontend with bilingual support (English/Arabic)
-- 🔒 **Secure API** - FastAPI backend with rate limiting and comprehensive validation
-- 🐳 **Docker Support** - Multiple deployment options for easy setup
-- 📊 **Detailed Analytics** - Confidence scores, explanations, and technical details
-- 🎨 **Professional UI** - Beautiful, accessible interface with smooth animations
+- **Advanced Image Detection** - Custom-trained ResNet/EfficientNet models for accurate image analysis
+- **Modern Web Interface** - Responsive Next.js frontend with bilingual support (English/Arabic)
+- **Secure API** - FastAPI backend with rate limiting and comprehensive validation
+- **Docker Support** - Multiple deployment options for easy setup
+- **Detailed Analytics** - Confidence scores, explanations, and technical details
+- **Professional UI** - Beautiful, accessible interface with smooth animations
 
-## 🏗️ Architecture
+## Architecture
 
 ### Frontend (Next.js 14)
 - **Framework**: Next.js with TypeScript
@@ -47,7 +46,7 @@ This project provides a complete deepfake detection solution with both image and
 - **Confidence Calibration**: Temperature scaling and domain-specific adjustments
 - **Face Extraction**: MTCNN for focused face region analysis
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Python 3.11+
@@ -130,7 +129,7 @@ deepfake-detector/
 └── package.json            # Node.js dependencies
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -150,14 +149,13 @@ The system supports multiple model architectures:
 - **EfficientNet-B0**: Balanced accuracy and speed
 - **Custom Classification Head**: Specialized for deepfake detection
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### Core Endpoints
 
 - `GET /` - API information and status
 - `GET /health` - Health check with model status
 - `POST /analyze-image` - Image deepfake detection
-- `POST /analyze-video` - Video analysis (coming soon)
 - `GET /docs` - Interactive API documentation
 
 ### Request/Response Format
@@ -185,7 +183,7 @@ curl -X POST "https://ffalathel-deepfake-detector.hf.space/analyze-image" \
 }
 ```
 
-## 🧪 Testing
+## Testing
 
 ### API Testing
 ```bash
@@ -206,29 +204,8 @@ npm run type-check
 npm run build
 ```
 
-## 🚀 Deployment
 
-### Vercel (Frontend)
-The frontend is configured for Vercel deployment with automatic builds and environment variable management.
-
-### Hugging Face Spaces (Backend)
-The backend is deployed on Hugging Face Spaces with automatic model loading and health monitoring.
-
-### Docker Production
-```bash
-# Build optimized production image
-docker build -f Dockerfile -t deepfake-detector-prod .
-
-# Run with production settings
-docker run -d \
-  --name deepfake-detector-prod \
-  -p 3000:3000 \
-  -p 8000:8000 \
-  -e NODE_ENV=production \
-  deepfake-detector-prod
-```
-
-## 🔒 Security Features
+## Security Features
 
 - **Rate Limiting**: 10 requests per minute per IP
 - **File Validation**: Comprehensive file type and size checks
@@ -237,7 +214,7 @@ docker run -d \
 - **Error Handling**: Graceful error responses without sensitive information
 - **Model Integrity**: SHA256 hash verification for model files
 
-## 🎨 User Interface
+## User Interface
 
 ### Design System
 - **Color Palette**: Luxury-inspired cream, gold, and deep tones
@@ -252,7 +229,7 @@ docker run -d \
 - **LanguageToggle**: Seamless English/Arabic switching
 - **LoadingSpinner**: Engaging loading animations
 
-## 📈 Performance
+## Performance
 
 ### Optimization Features
 - **Lazy Loading**: Models loaded on-demand
@@ -267,7 +244,7 @@ docker run -d \
 - **API Response**: <100ms for cached responses
 - **File Upload**: Supports up to 50MB images
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -285,22 +262,3 @@ docker run -d \
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **University of South Florida** - Academic support and resources
-- **Hugging Face** - Model hosting and deployment platform
-- **Vercel** - Frontend hosting and deployment
-- **Open Source Community** - PyTorch, FastAPI, Next.js, and other amazing tools
-
-## 📞 Contact
-
-**Fahada Alathel**
-- **University**: University of South Florida
-- **Project**: Advanced Deepfake Detection System
-- **Mission**: Creating technology that protects and serves our communities
-
----
-
-*Built with care for my family — and yours. 💛*  
-*Because the truth should be easy to spot.*
