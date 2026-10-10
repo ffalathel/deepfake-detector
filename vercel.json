@@ -7,5 +7,8 @@
   "env": {
     "BACKEND_URL": "https://ffalathel-deepfake-detector.hf.space",
     "NODE_ENV": "production"
-  }
+  },
+  "crons": [
+    { "path": "/api/warmup", "schedule": "0 12 * * *" }
+  ]
 }

@@ -39,7 +39,7 @@ const t = {
     removeFile: 'Remove file',
     analyzing: 'Analyzing',
     learnMore: 'Learn More',
-    navHome: 'Home', navThreats: 'Threats', navProcess: 'Process', navMetrics: 'Metrics',
+    navHome: 'Home', navThreats: 'Threats', navProcess: 'Process', navMetrics: 'Model',
     whyMatters: 'Why This Matters',
     process: 'Process',
     howItWorks: 'How It Works',
@@ -50,10 +50,9 @@ const t = {
     modelAnalysisDesc: 'Our custom-trained deep learning model analyzes pixel-level patterns, artifacts, and inconsistencies.',
     authenticityScore: 'Authenticity Score',
     authenticityScoreDesc: 'Receive a calibrated confidence score with detailed explanation of detected features.',
-    performance: 'Performance',
-    modelMetrics: 'Model Metrics',
-    metricsSub: "Trained and validated on real-world datasets. Here's how our model performs.",
-    accuracy: 'Accuracy', precision: 'Precision', recall: 'Recall', f1Score: 'F1 Score',
+    performance: 'Under the Hood',
+    modelMetrics: 'Model & Data',
+    metricsSub: 'How the model is built and what it was trained on.',
     architecture: 'Architecture',
     customCnn: 'Custom CNN',
     archDesc: 'Custom-trained convolutional neural network optimized for detecting subtle artifacts in AI-generated imagery. Built with PyTorch and fine-tuned for production reliability.',
@@ -87,7 +86,7 @@ const t = {
     removeFile: 'إزالة الملف',
     analyzing: 'جاري التحليل',
     learnMore: 'اعرف المزيد',
-    navHome: 'الرئيسية', navThreats: 'التهديدات', navProcess: 'العملية', navMetrics: 'المقاييس',
+    navHome: 'الرئيسية', navThreats: 'التهديدات', navProcess: 'العملية', navMetrics: 'النموذج',
     whyMatters: 'لماذا هذا مهم',
     process: 'العملية',
     howItWorks: 'كيف يعمل',
@@ -98,10 +97,9 @@ const t = {
     modelAnalysisDesc: 'يحلل نموذج التعلم العميق المُدرّب خصيصاً الأنماط والتشوهات والتناقضات على مستوى البكسل.',
     authenticityScore: 'درجة المصداقية',
     authenticityScoreDesc: 'احصل على درجة ثقة معايرة مع شرح مفصل للميزات المكتشفة.',
-    performance: 'الأداء',
-    modelMetrics: 'مقاييس النموذج',
-    metricsSub: 'تم التدريب والتحقق على مجموعات بيانات حقيقية. إليك أداء نموذجنا.',
-    accuracy: 'الدقة', precision: 'الإحكام', recall: 'الاستدعاء', f1Score: 'درجة F1',
+    performance: 'من الداخل',
+    modelMetrics: 'النموذج والبيانات',
+    metricsSub: 'كيف بُني النموذج وما البيانات التي دُرّب عليها.',
     architecture: 'البنية',
     customCnn: 'شبكة CNN مخصصة',
     archDesc: 'شبكة عصبية التفافية مُدرّبة خصيصاً ومُحسّنة لاكتشاف التشوهات الدقيقة في الصور المُنشأة بالذكاء الاصطناعي. مبنية بـ PyTorch ومُحسّنة للموثوقية الإنتاجية.',
@@ -123,26 +121,6 @@ const t = {
     ],
   },
 };
-
-// ─── Animated Counter ───────────────────────────────────────────────────────
-function AnimatedCounter({ value, suffix = '', duration = 2000 }: { value: number; suffix?: string; duration?: number }) {
-  const [count, setCount] = useState(0);
-  const [hasStarted, setHasStarted] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting && !hasStarted) setHasStarted(true); }, { threshold: 0.3 });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [hasStarted]);
-  useEffect(() => {
-    if (!hasStarted) return;
-    let start = 0;
-    const inc = value / (duration / 16);
-    const timer = setInterval(() => { start += inc; if (start >= value) { setCount(value); clearInterval(timer); } else setCount(Math.floor(start)); }, 16);
-    return () => clearInterval(timer);
-  }, [hasStarted, value, duration]);
-  return <span ref={ref}>{count}{suffix}</span>;
-}
 
 // ─── SVG Icons ──────────────────────────────────────────────────────────────
 const UploadIcon = ({ size = 32 }: { size?: number }) => (
@@ -216,6 +194,9 @@ export default function Home() {
   const goToSlide = useCallback((i: number) => { setSlideDirection(i > currentSlide ? 1 : -1); setCurrentSlide(i); resetAutoPlay(); }, [currentSlide, resetAutoPlay]);
   const nextSlide = useCallback(() => { setSlideDirection(1); setCurrentSlide((p) => (p + 1) % slideCount); resetAutoPlay(); }, [resetAutoPlay, slideCount]);
   const prevSlide = useCallback(() => { setSlideDirection(-1); setCurrentSlide((p) => (p - 1 + slideCount) % slideCount); resetAutoPlay(); }, [resetAutoPlay, slideCount]);
+
+  // Wake the Hugging Face Space while the visitor reads, so their first upload doesn't hit a cold start
+  useEffect(() => { fetch('/api/warmup').catch(() => {}); }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -456,15 +437,6 @@ export default function Home() {
             <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-6">{c.modelMetrics}</h2>
             <p className="text-lg max-w-2xl mx-auto" style={{ color: colors.muted }}>{c.metricsSub}</p>
           </motion.div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-            {[{ label: c.accuracy, value: 95, suffix: '%' }, { label: c.precision, value: 94, suffix: '%' }, { label: c.recall, value: 93, suffix: '%' }, { label: c.f1Score, value: 93, suffix: '%' }].map((m, i) => (
-              <motion.div key={m.label} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.1 }} className="p-8 text-center transition-all duration-300" style={{ border: `1px solid ${colors.border}`, borderRadius: '2px' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = `${colors.accent}60`; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = colors.border; }}>
-                <p className="font-serif text-5xl md:text-6xl mb-3" style={{ color: colors.accent }}><AnimatedCounter value={m.value} suffix={m.suffix} /></p>
-                <p className="text-xs tracking-[0.2em] uppercase" style={{ color: colors.muted }}>{m.label}</p>
-              </motion.div>
-            ))}
-          </div>
 
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.3 }} className="grid md:grid-cols-2 gap-6">
             <div className="p-8 md:p-10" style={{ border: `1px solid ${colors.border}`, borderRadius: '2px' }}>

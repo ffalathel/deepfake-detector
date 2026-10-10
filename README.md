@@ -135,7 +135,6 @@ deepfake-detector/
 
 #### Backend
 - `TRAINING_MODE`: Set to "true" to run in training mode (disables API endpoints)
-- `THINKING_TIME`: Processing simulation time in seconds (default: 2.0)
 - `BACKEND_URL`: Backend service URL for frontend communication
 
 #### Frontend

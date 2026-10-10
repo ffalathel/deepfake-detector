@@ -500,13 +500,6 @@ def predict_image(image: Image.Image, model, device) -> tuple:
             - confidence: Calibrated confidence score (0.0-1.0)
     """
     try:
-        import time
-        
-        # Simulate "thinking" time for more realistic processing
-        # Can be configured via environment variable THINKING_TIME (default: 2.0 seconds)
-        thinking_time = float(os.getenv("THINKING_TIME", "2.0"))
-        time.sleep(thinking_time)
-        
         # Analyze image characteristics for domain-specific calibration
         image_characteristics = analyze_image_characteristics(image)
         
