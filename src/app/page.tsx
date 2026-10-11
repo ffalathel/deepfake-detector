@@ -58,7 +58,7 @@ const t = {
     archDesc: 'Custom-trained convolutional neural network optimized for detecting subtle artifacts in AI-generated imagery. Built with PyTorch and fine-tuned for production reliability.',
     trainingData: 'Training Data',
     datasetOverview: 'Dataset Overview',
-    totalImages: 'Total Images', realSamples: 'Real Samples', aiGenerated: 'AI-Generated', inputResolution: 'Input Resolution',
+    inputResolution: 'Input Resolution',
     footer: 'Built by Fahada Alathel \u00B7 University of South Florida',
     authentic: 'Authentic', aiGeneratedResult: 'AI-Generated', confidence: 'confidence',
     model: 'Model', time: 'Time', size: 'Size',
@@ -105,7 +105,7 @@ const t = {
     archDesc: 'شبكة عصبية التفافية مُدرّبة خصيصاً ومُحسّنة لاكتشاف التشوهات الدقيقة في الصور المُنشأة بالذكاء الاصطناعي. مبنية بـ PyTorch ومُحسّنة للموثوقية الإنتاجية.',
     trainingData: 'بيانات التدريب',
     datasetOverview: 'نظرة عامة على مجموعة البيانات',
-    totalImages: 'إجمالي الصور', realSamples: 'عينات حقيقية', aiGenerated: 'مُنشأة بالذكاء الاصطناعي', inputResolution: 'دقة الإدخال',
+    inputResolution: 'دقة الإدخال',
     footer: 'بناء فهده العذل \u00B7 جامعة جنوب فلوريدا',
     authentic: 'أصلي', aiGeneratedResult: 'مُنشأ بالذكاء الاصطناعي', confidence: 'ثقة',
     model: 'النموذج', time: 'الوقت', size: 'الحجم',
@@ -449,7 +449,7 @@ export default function Home() {
               <p className="text-xs tracking-[0.3em] uppercase mb-6" style={{ color: colors.accent }}>{c.trainingData}</p>
               <h3 className="font-serif text-2xl mb-4">{c.datasetOverview}</h3>
               <div className="space-y-4">
-                {[{ label: c.totalImages, value: '140,000+' }, { label: c.realSamples, value: '70,000' }, { label: c.aiGenerated, value: '70,000' }, { label: c.inputResolution, value: '224 x 224' }].map((item) => (
+                {[{ label: c.inputResolution, value: '224 x 224' }].map((item) => (
                   <div key={item.label} className="flex items-center justify-between" style={{ borderBottom: `1px solid ${colors.border}`, paddingBottom: '12px' }}><span className="text-sm" style={{ color: colors.muted }}>{item.label}</span><span className="text-sm font-medium">{item.value}</span></div>
                 ))}
               </div>

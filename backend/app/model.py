@@ -343,7 +343,6 @@ PRETRAINED_MODELS = {
     'celeb_df_v2': {
         'url': 'https://github.com/selimsef/dfdc_deepfake_challenge/releases/download/v1.0/final_999_DeepFakeClassifier_tf_efficientnet_b7_ns_0_36',
         'description': 'EfficientNet-B7 trained on CelebDF-v2 dataset',
-        'accuracy': 0.936,
         'type': 'image',
         'checksum': None
     }

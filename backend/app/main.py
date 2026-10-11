@@ -16,7 +16,6 @@ from fastapi.concurrency import run_in_threadpool
 import torch
 import torchvision.transforms as transforms
 from PIL import Image
-import cv2
 
 # Import local modules - adjust as needed for project structure
 from app.model import ImprovedDeepfakeDetector, load_image_model
@@ -24,7 +23,7 @@ from app.utils import validate_file, get_file_info  # process_image, process_vid
 
 # TODO: Replace placeholder with Microsoft Video Detection Model
 # - Load Microsoft model in startup_event()
-# - Replace process_video_file() with actual inference
+# - Add video inference
 # - Update model_used string in response
 # -------------------- Setup Logging --------------------
 logging.basicConfig(
@@ -318,7 +317,7 @@ async def analyze_image(file: UploadFile = File(...)):
             - details: Technical details including model info, processing time, etc.
             
     Raises:
-        HTTPException: 503 if service is in training mode
+        HTTPException: 503 if service is in training mode or the model failed to load
         HTTPException: 400 if file validation fails or image format is invalid
     """
     start_time = time.time()
@@ -347,13 +346,12 @@ async def analyze_image(file: UploadFile = File(...)):
         await load_model_if_needed()
     
     if image_model is None:
-        logger.warning("Image model not loaded; returning mock response.")
-        prediction, confidence = "ai_generated" if "ai" in file.filename.lower() else "real", 0.75
-        image_characteristics = {}
-    else:
-        prediction, confidence = await run_in_threadpool(predict_image, image, image_model, device)
-        # Get image characteristics for explanation
-        image_characteristics = analyze_image_characteristics(image)
+        logger.error("Image model not loaded; refusing to return a prediction.")
+        raise HTTPException(status_code=503, detail="Detection model unavailable")
+
+    prediction, confidence = await run_in_threadpool(predict_image, image, image_model, device)
+    # Get image characteristics for explanation
+    image_characteristics = analyze_image_characteristics(image)
 
     processing_time = time.time() - start_time
     explanation = generate_explanation(prediction, confidence, "image", image_characteristics)
@@ -624,67 +622,6 @@ def calibrate_confidence(probability: float, image_characteristics: dict = None)
         logger.error(f"Error in final calibration mapping: {e}")
         # Return original probability if final mapping fails
         return max(0.1, min(0.9, probability))
-
-def process_video_file(video_path: str) -> tuple:
-    """
-    Process video file for deepfake detection (placeholder implementation).
-    
-    Currently implements placeholder logic that analyzes video metadata and
-    provides mock predictions based on filename hints. This function is
-    designed to be replaced with Microsoft's video detection model.
-    
-    Args:
-        video_path: Path to the video file to analyze
-        
-    Returns:
-        tuple: (prediction, confidence, video_info) where:
-            - prediction: "real" or "ai_generated"
-            - confidence: Confidence score (0.0-1.0)
-            - video_info: Dict with video metadata (fps, duration, frames_analyzed, etc.)
-    """
-    cap = None
-    try:
-        cap = cv2.VideoCapture(video_path)
-        if not cap.isOpened():
-            raise ValueError("Failed to open video file")
-        
-        # Get basic video info
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        duration = total_frames / fps if fps > 0 else 0
-        
-        # Placeholder logic - replace this with Microsoft model
-        # For now, random prediction based on filename hints
-        filename_lower = os.path.basename(video_path).lower()
-        if any(word in filename_lower for word in ['fake', 'deepfake', 'synthetic', 'ai']):
-            base_prob = 0.75 + np.random.random() * 0.2  # 0.75-0.95
-        else:
-            base_prob = 0.15 + np.random.random() * 0.3  # 0.15-0.45
-        
-        prediction = "ai_generated" if base_prob > 0.5 else "real"
-        confidence = base_prob if prediction == "ai_generated" else (1 - base_prob)
-        
-        # Simulate processing frames
-        frames_analyzed = min(50, total_frames // max(1, int(fps)) if fps > 0 else 30)
-        
-        video_info = {
-            "frames_analyzed": frames_analyzed,
-            "duration": duration,
-            "fps": fps,
-            "total_frames": total_frames
-        }
-        
-        logger.info(f"Placeholder video analysis: {prediction} ({confidence:.2f})")
-        return prediction, confidence, video_info
-        
-    except Exception as e:
-        logger.error(f"Video processing error: {e}")
-        # Fallback
-        return "real", 0.5, {"frames_analyzed": 0, "duration": 0}
-    finally:
-        # Ensure cap is always released
-        if cap is not None:
-            cap.release()
 
 def get_detected_features(prediction: str, confidence: float, media_type: str) -> list:
     # [Keep your existing get_detected_features function logic here]
