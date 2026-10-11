@@ -46,6 +46,17 @@ This project provides a complete deepfake detection solution with both image and
 - **Confidence Calibration**: Temperature scaling and domain-specific adjustments
 - **Face Extraction**: MTCNN for focused face region analysis
 
+### Training Data
+The image model was trained on images from the [FaceForensics++](https://github.com/ondyari/FaceForensics) dataset, 17,434 images in total:
+
+| Split | Images |
+|-------|--------|
+| Train | 12,203 (fake: 5,995, real: 6,208) |
+| Validation | 2,614 |
+| Test | 2,617 |
+
+Classes: `fake`, `real`.
+
 ## Quick Start
 
 ### Prerequisites
