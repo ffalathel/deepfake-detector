@@ -68,8 +68,9 @@ async def rate_limit_middleware(request: Request, call_next):
     Returns:
         The response from the next handler
         
-    Raises:
-        HTTPException: 429 status if rate limit is exceeded
+        JSONResponse: 429 status if rate limit is exceeded. Returned rather than
+            raised, because exceptions raised in middleware bypass FastAPI's
+            HTTPException handling and become 500s.
     """
     client_ip = request.client.host
     now = time.time()
@@ -82,7 +83,7 @@ async def rate_limit_middleware(request: Request, call_next):
     
     # Check rate limit (max 10 requests per minute)
     if len(request_counts[client_ip]) >= 10:
-        raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        return JSONResponse(status_code=429, content={"detail": "Rate limit exceeded"})
     
     request_counts[client_ip].append(now)
     return await call_next(request)
