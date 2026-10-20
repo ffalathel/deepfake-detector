@@ -13,13 +13,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.concurrency import run_in_threadpool
 
-import torch
-import torchvision.transforms as transforms
+import onnxruntime as ort
 from PIL import Image
-
-# Import local modules - adjust as needed for project structure
-from app.model import ImprovedDeepfakeDetector, load_image_model
-from app.utils import validate_file, get_file_info  # process_image, process_video can be integrated later
 
 # TODO: Replace placeholder with Microsoft Video Detection Model
 # - Load Microsoft model in startup_event()
@@ -136,22 +131,42 @@ async def internal_server_error_handler(request: Request, exc):
     )
 
 # -------------------- Globals --------------------
-image_model: Optional[ImprovedDeepfakeDetector] = None
+image_model: Optional[ort.InferenceSession] = None
 video_model = None  # Extend loading when video model ready
-device: Optional[torch.device] = None
+
+# Exported from models/image_model.pt by export_onnx.py
+MODEL_PATH = "models/image_model.onnx"
 
 # Check training mode at startup
 TRAINING_MODE = os.getenv("TRAINING_MODE") == "true"
 if TRAINING_MODE:
     logger.info("Training mode detected - API will run in training mode")
 
-# Image preprocessing pipeline
-image_transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], 
-                         std=[0.229, 0.224, 0.225])
-])
+# ImageNet normalization used during training
+IMAGENET_MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+IMAGENET_STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+
+
+def preprocess_image(image: Image.Image) -> np.ndarray:
+    """
+    Turn a PIL image into the model's (1, 3, 224, 224) float32 input.
+
+    Equivalent to torchvision Resize((224, 224)) + ToTensor + Normalize,
+    done in NumPy so the server does not need PyTorch.
+    """
+    x = np.asarray(image.resize((224, 224), Image.BILINEAR), dtype=np.float32) / 255.0
+    x = (x - IMAGENET_MEAN) / IMAGENET_STD
+    return x.transpose(2, 0, 1)[np.newaxis]  # HWC -> NCHW
+
+
+def load_onnx_model(model_path: str = MODEL_PATH) -> Optional[ort.InferenceSession]:
+    """Load the ONNX model into an ONNX Runtime CPU session, or None if missing."""
+    if not os.path.exists(model_path):
+        logger.warning(f"Model file not found: {model_path}")
+        return None
+    session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
+    logger.info(f"Loaded ONNX model from {model_path}")
+    return session
 
 # -------------------- Startup Event --------------------
 @app.on_event("startup")
@@ -159,39 +174,31 @@ async def startup_event():
     """
     Initialize the FastAPI application on startup.
     
-    This function handles the initialization of the deepfake detection models
-    and sets up the appropriate device (GPU/CPU) for inference. It includes
-    safety checks to prevent conflicts when running in training mode and
-    performs integrity tests on loaded models.
-    
+    This function loads the ONNX deepfake detection model into an ONNX Runtime
+    CPU session. It includes safety checks to prevent conflicts when running
+    in training mode and performs an integrity test on the loaded model.
+
     Global variables modified:
-        image_model: The loaded image deepfake detection model
+        image_model: The ONNX Runtime session for the image model
         video_model: Placeholder for future video model (currently None)
-        device: The torch device (cuda/cpu) for model inference
     """
-    global image_model, video_model, device
+    global image_model, video_model
 
     # Skip model loading if training mode is detected
     if os.getenv("TRAINING_MODE") == "true":
         logger.info("Training mode detected - skipping model loading to avoid conflicts")
-        device = None
         image_model = None
         video_model = None
         return
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Starting up. Using device: {device}")
-
     try:
-        image_model = load_image_model("models/image_model.pt", device)
+        image_model = load_onnx_model()
         if image_model is None:
             logger.warning("Image model not loaded or missing.")
         else:
-            # Quick integrity check with dummy tensor
-            dummy = torch.rand(1, 3, 224, 224).to(device)
-            image_model.eval()
-            with torch.no_grad():
-                _ = image_model(dummy)
+            # Quick integrity check with dummy input
+            dummy = np.random.rand(1, 3, 224, 224).astype(np.float32)
+            image_model.run(None, {"input": dummy})
             logger.info("Image model loaded and integrity test passed.")
     except Exception as e:
         logger.error(f"Failed to load image model: {e}")
@@ -231,8 +238,7 @@ async def health_check():
             },
             "device": "unknown",
             "system": {
-                "cuda_available": torch.cuda.is_available(),
-                "cuda_devices": torch.cuda.device_count() if torch.cuda.is_available() else 0,
+                "runtime": f"onnxruntime {ort.__version__}",
                 "training_mode": True
             }
         }
@@ -244,10 +250,9 @@ async def health_check():
             "image_model": "loaded" if image_model else "not_loaded",
             "video_model": "loaded" if video_model else "not_loaded"
         },
-        "device": str(device) if device else "unknown",
+        "device": "cpu",
         "system": {
-            "cuda_available": torch.cuda.is_available(),
-            "cuda_devices": torch.cuda.device_count() if torch.cuda.is_available() else 0,
+            "runtime": f"onnxruntime {ort.__version__}",
             "training_mode": False
         }
     }
@@ -333,7 +338,6 @@ async def analyze_image(file: UploadFile = File(...)):
 
     # Read file bytes async
     contents = await file.read()
-    file_info = get_file_info(contents, file.filename)
 
     # Load image safely off event loop
     try:
@@ -349,7 +353,7 @@ async def analyze_image(file: UploadFile = File(...)):
         logger.error("Image model not loaded; refusing to return a prediction.")
         raise HTTPException(status_code=503, detail="Detection model unavailable")
 
-    prediction, confidence = await run_in_threadpool(predict_image, image, image_model, device)
+    prediction, confidence = await run_in_threadpool(predict_image, image, image_model)
     # Get image characteristics for explanation
     image_characteristics = analyze_image_characteristics(image)
 
@@ -363,7 +367,7 @@ async def analyze_image(file: UploadFile = File(...)):
         "details": {
             "model_used": "Custom AI Detection Model v1.0",
             "processing_time": round(processing_time, 2),
-            "file_size": file_info["size"],
+            "file_size": f"{len(contents) / (1024 * 1024):.2f} MB",
             "image_dimensions": f"{image.width}x{image.height}",
             "detected_features": get_detected_features(prediction, confidence, "image")
         }
@@ -416,24 +420,19 @@ async def load_model_if_needed():
     Lazy load the image model when first needed for inference.
     
     This function implements lazy loading to avoid loading the model during
-    startup if it's not immediately needed. It initializes the device if
-    necessary and attempts to load the trained model from disk.
-    
+    startup if it's not immediately needed. It attempts to load the ONNX
+    model from disk.
+
     Global variables modified:
-        image_model: Loaded deepfake detection model
-        device: PyTorch device for inference
+        image_model: ONNX Runtime session for the image model
     """
-    global image_model, device
-    
+    global image_model
+
     if image_model is not None:
         return
-        
-    if device is None:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        logger.info(f"Initializing device: {device}")
-    
+
     try:
-        image_model = load_image_model("models/image_model.pt", device)
+        image_model = load_onnx_model()
         if image_model is None:
             logger.warning("Image model not loaded or missing.")
         else:
@@ -478,7 +477,7 @@ def analyze_image_characteristics(image: Image.Image) -> dict:
         logger.warning(f"Image analysis failed: {e}")
         return {}
 
-def predict_image(image: Image.Image, model, device) -> tuple:
+def predict_image(image: Image.Image, model: ort.InferenceSession) -> tuple:
     """
     Run deepfake detection inference on a single image with confidence calibration.
     
@@ -489,34 +488,29 @@ def predict_image(image: Image.Image, model, device) -> tuple:
     
     Args:
         image: PIL Image object to analyze
-        model: Loaded deepfake detection model
-        device: PyTorch device for inference
-        
+        model: ONNX Runtime session for the image model
+
     Returns:
         tuple: (prediction, confidence) where:
             - prediction: "real" or "ai_generated"
             - confidence: Calibrated confidence score (0.0-1.0)
-    """
-    try:
-        # Analyze image characteristics for domain-specific calibration
-        image_characteristics = analyze_image_characteristics(image)
-        
-        model.eval()
-        input_tensor = image_transform(image).unsqueeze(0).to(device)
-        with torch.no_grad():
-            output = model(input_tensor)
-            probability = torch.sigmoid(output).item()
 
-        # Apply confidence calibration with image characteristics
-        calibrated_probability = calibrate_confidence(probability, image_characteristics)
-        
-        prediction = "ai_generated" if calibrated_probability > 0.5 else "real"
-        confidence = calibrated_probability if prediction == "ai_generated" else (1 - calibrated_probability)
-        return prediction, confidence
-    except Exception as e:
-        logger.error(f"Error in predict_image: {e}")
-        # Return a safe fallback prediction
-        return "real", 0.5
+    Raises:
+        Exception: inference errors propagate (handled as a 500) rather than
+            being turned into a made-up prediction
+    """
+    # Analyze image characteristics for domain-specific calibration
+    image_characteristics = analyze_image_characteristics(image)
+
+    logit = model.run(None, {"input": preprocess_image(image)})[0].item()
+    probability = 1 / (1 + np.exp(-logit))
+
+    # Apply confidence calibration with image characteristics
+    calibrated_probability = calibrate_confidence(probability, image_characteristics)
+
+    prediction = "ai_generated" if calibrated_probability > 0.5 else "real"
+    confidence = calibrated_probability if prediction == "ai_generated" else (1 - calibrated_probability)
+    return prediction, confidence
 
 def calibrate_confidence(probability: float, image_characteristics: dict = None) -> float:
     """

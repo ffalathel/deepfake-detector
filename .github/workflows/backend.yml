@@ -1,0 +1,70 @@
+# Test the backend Docker image, then deploy it to the Hugging Face Space.
+#
+# The Space repo is backend/ at its root. This workflow only syncs code
+# (Dockerfile, requirements.txt, app/); model weights live on the Space and
+# are updated by hand:  hf upload ffalathel/deepfake-detector backend/models/image_model.onnx models/image_model.onnx --repo-type space
+#
+# Requires the repo secret HF_TOKEN (a Hugging Face token with write access).
+name: Backend
+
+on:
+  push:
+    branches: [main]
+    paths: ["backend/**", ".github/workflows/backend.yml"]
+  pull_request:
+    paths: ["backend/**", ".github/workflows/backend.yml"]
+  workflow_dispatch:
+
+env:
+  SPACE: ffalathel/deepfake-detector
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch the model from the Space
+        run: |
+          pip install -q huggingface_hub
+          hf download "$SPACE" models/image_model.onnx --repo-type space --local-dir backend
+
+      - name: Build the image
+        run: docker build -t backend backend
+
+      - name: Smoke test the container
+        run: |
+          docker run -d --name backend -p 7860:7860 backend
+          backend/smoke_test.sh http://localhost:7860 || { docker logs backend; exit 1; }
+
+  deploy:
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency: deploy-space
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload code to the Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          pip install -q huggingface_hub
+          hf upload "$SPACE" backend . --repo-type space \
+            --include Dockerfile --include requirements.txt --include "app/*.py" \
+            --commit-message "Deploy ${GITHUB_SHA::7} from GitHub"
+
+      - name: Wait for the Space to rebuild
+        run: |
+          for _ in $(seq 1 120); do
+            read -r stage live head < <(curl -s "https://huggingface.co/api/spaces/$SPACE" | python3 -c \
+              "import json,sys; d=json.load(sys.stdin); r=d.get('runtime',{}); print(r.get('stage'), r.get('sha'), d.get('sha'))")
+            echo "stage=$stage running=${live::7} latest=${head::7}"
+            [ "$stage" = RUNNING ] && [ "$live" = "$head" ] && exit 0
+            case "$stage" in *ERROR) exit 1 ;; esac
+            sleep 10
+          done
+          echo "Space did not come up within 20 minutes"; exit 1
+
+      - name: Smoke test the live Space
+        run: backend/smoke_test.sh https://ffalathel-deepfake-detector.hf.space

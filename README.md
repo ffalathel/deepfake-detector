@@ -33,7 +33,7 @@ This project provides a complete deepfake detection solution with both image and
 
 ### Backend (FastAPI)
 - **Framework**: FastAPI with Python 3.11+
-- **ML Models**: PyTorch-based deepfake detection models
+- **ML Models**: PyTorch-trained ResNet50, exported to ONNX and served with ONNX Runtime (CPU)
 - **Image Processing**: PIL, OpenCV for image/video handling
 - **Face Detection**: MTCNN and OpenCV Haar Cascades
 - **Security**: Rate limiting, file validation, CORS protection

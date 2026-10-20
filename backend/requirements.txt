@@ -1,17 +1,8 @@
-torch>=2.0.0
-torchvision>=0.15.0
-numpy>=1.21.0
-pandas>=1.3.0
-scikit-learn>=1.0.0
-Pillow>=8.3.0
-opencv-python>=4.5.0
-tqdm>=4.62.0
-pyyaml>=6.0
-matplotlib>=3.5.0
-seaborn>=0.11.0
-fastapi>=0.68.0
-uvicorn>=0.15.0
-python-multipart>=0.0.5
-psutil>=5.8.0
-facenet-pytorch>=2.5.0
-requests>=2.25.0
+# Server runtime only (versions tested in the Docker image). Training/export: requirements-dev.txt
+fastapi==0.156.1
+uvicorn==0.54.0
+python-multipart==0.0.32
+onnxruntime==1.31.0
+numpy==2.4.6
+Pillow==13.0.0
+scipy==1.17.1

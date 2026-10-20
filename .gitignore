@@ -108,3 +108,6 @@ backend/test_model_analysis.py
 # Keep model files but exclude backups
 *.pt.bak
 *.pth.bak
+
+# ONNX export output (the deployed model lives on the Hugging Face Space)
+backend/models/*.onnx
