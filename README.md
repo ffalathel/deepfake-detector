@@ -50,11 +50,11 @@ Classes: `fake`, `real`.
 
 ## Performance
 
-Measured on the live Space (free `cpu-basic` tier), 20 requests with a 1920×1080 JPEG:
+Measured on the live Space (free `cpu-basic` tier), 10 requests with a 1920×1080 JPEG:
 
 | Metric | Median | Range |
 |--------|--------|-------|
-| Server-side processing (decode, preprocess, inference, calibration) | 0.81 s | 0.66–0.96 s |
+| Server-side processing (decode, preprocess, inference, calibration) | 0.05 s | 0.04–0.09 s |
 
 Docker image size (`linux/amd64`):
 
