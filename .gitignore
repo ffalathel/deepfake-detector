@@ -97,9 +97,7 @@ frontend/.env.production.local
 .dockerignore
 
 # Deployment scripts (keep but don't track execution)
-# deploy.sh
 # deploy-production.sh
-# start_services.sh
 backend/data
 # Analysis and test files
 backend/analyze_celebrity_issue.py

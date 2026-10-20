@@ -63,51 +63,48 @@ Classes: `fake`, `real`.
 - Python 3.11+
 - Node.js 18+
 - Docker (optional)
+- `huggingface_hub` (`pip install huggingface_hub`) to fetch the model
+
+The trained model (`image_model.onnx`) is stored on the Hugging Face Space, not in git.
 
 ### Local Development
 
-1. **Clone the repository**
+1. **Clone the repository and fetch the model**
    ```bash
-   git clone https://github.com/yourusername/deepfake-detector.git
+   git clone https://github.com/ffalathel/deepfake-detector.git
    cd deepfake-detector
+   hf download ffalathel/deepfake-detector models/image_model.onnx --repo-type space --local-dir backend
    ```
 
-2. **Backend Setup**
+2. **Backend** (from `backend/`)
    ```bash
    cd backend
    pip install -r requirements.txt
-   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   uvicorn app.main:app --reload --port 7860
    ```
 
-3. **Frontend Setup**
+   Or run it in Docker, exactly as the Space does:
    ```bash
-   cd src  # Frontend is in src/ directory
-   npm install
-   npm run dev
+   docker build -t deepfake-backend backend
+   docker run -p 7860:7860 deepfake-backend
    ```
 
-4. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000
-   - API Documentation: http://localhost:8000/docs
+   Check it with `backend/smoke_test.sh http://localhost:7860`.
 
-### Docker Deployment
+3. **Frontend** (from the repo root, pointed at the local backend)
+   ```bash
+   npm install
+   BACKEND_URL=http://localhost:7860 npm run dev
+   ```
 
-#### Option 1: Simple Single Container
-```bash
-docker build -t deepfake-detector .
-docker run -d --name deepfake-detector -p 3000:3000 -p 8000:8000 deepfake-detector
-```
+4. **Open** http://localhost:3000 (API docs at http://localhost:7860/docs)
 
-#### Option 2: Docker Compose
-```bash
-docker-compose up --build -d
-```
+### Deployment
 
-#### Option 3: Interactive Deployment Script
-```bash
-./start_services.sh
-```
+- **Frontend:** Vercel builds the Next.js app from the repo root (`vercel.json`).
+- **Backend:** the Hugging Face Space builds `backend/Dockerfile`. On every push to `main` that touches `backend/`, GitHub Actions (`.github/workflows/backend.yml`) builds and smoke-tests the image, uploads the code to the Space, waits for the new build to go live, and smoke-tests the live URL. Pull requests run the tests only.
+- **Updating the model:** retrain or re-export with `python export_onnx.py` (needs `requirements-dev.txt`), then upload it:
+  `hf upload ffalathel/deepfake-detector backend/models/image_model.onnx models/image_model.onnx --repo-type space`
 
 ## 📁 Project Structure
 
@@ -118,8 +115,12 @@ deepfake-detector/
 │   │   ├── main.py            # FastAPI application and endpoints
 │   │   ├── model.py           # ML model definitions and loading
 │   │   └── utils.py           # Utility functions and validation
-│   ├── models/                # Trained model files
-│   ├── requirements.txt       # Python dependencies
+│   ├── models/                # Model files (image_model.onnx, fetched from the Space)
+│   ├── Dockerfile             # Backend image, built by the Hugging Face Space and CI
+│   ├── export_onnx.py         # PyTorch -> ONNX export with parity check
+│   ├── smoke_test.sh          # API smoke test used by CI
+│   ├── requirements.txt       # Server dependencies (pinned)
+│   ├── requirements-dev.txt   # Training and export dependencies
 │   └── config.yaml           # Configuration file
 ├── src/                       # Next.js frontend
 │   ├── app/                   # App router pages
@@ -132,9 +133,7 @@ deepfake-detector/
 │       ├── LoadingSpinner.tsx # Loading animation
 │       └── LanguageToggle.tsx # Language switcher
 ├── public/                   # Static assets
-├── docker-compose.yml        # Docker Compose configuration
-├── Dockerfile               # Docker image definition
-├── start_services.sh        # Service startup script
+├── .github/workflows/       # CI/CD to the Hugging Face Space
 ├── test-api.sh             # API testing script
 ├── vercel.json             # Vercel deployment config
 └── package.json            # Node.js dependencies
@@ -208,7 +207,6 @@ curl -X POST https://ffalathel-deepfake-detector.hf.space/analyze-image \
 
 ### Frontend Testing
 ```bash
-cd src
 npm run lint
 npm run type-check
 npm run build
