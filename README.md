@@ -29,7 +29,7 @@ The browser never calls the backend directly: the Next.js API route `/api/analyz
 ### Backend (`backend/`)
 - **FastAPI** with `POST /analyze-image` accepting multipart uploads (`UploadFile`)
 - **Inference**: `models/image_model.onnx` runs on ONNX Runtime (`CPUExecutionProvider`). Preprocessing (resize to 224×224, ImageNet normalization) is done in NumPy and is identical to the torchvision pipeline used in training
-- **Confidence calibration**: temperature scaling plus adjustments for professional-looking photos, bounded to 0.1–0.9
+- **Confidence calibration**: temperature scaling, bounded to 0.1–0.9
 - **Validation**: content type and extension checks; corrupted images return `400`, a missing model returns `503`
 - **Rate limiting**: 10 requests per minute per IP (in memory)
 
@@ -119,7 +119,7 @@ The model (`image_model.onnx`) is stored on the Hugging Face Space, not in git.
   3. waits until the Space is running the new commit, then smoke-tests the live URL
 
   Pull requests run step 1 only.
-- **Updating the model**: re-export with `python export_onnx.py` (from `backend/`, needs `requirements-dev.txt` and `models/image_model.pt`), then upload it:
+- **Updating the model**: re-export with `python export_onnx.py` (from `backend/`, needs `requirements-dev.txt` and `models/image_model.pt`), check the served labels against known frames with `python check_labels.py <data_dir>` (a folder with `fake/` and `real/`), then upload it:
   ```bash
   hf upload ffalathel/deepfake-detector backend/models/image_model.onnx models/image_model.onnx --repo-type space
   ```

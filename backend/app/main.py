@@ -371,11 +371,9 @@ async def analyze_image(file: UploadFile = File(...)):
         raise HTTPException(status_code=503, detail="Detection model unavailable")
 
     prediction, confidence = await run_in_threadpool(predict_image, image, image_model)
-    # Get image characteristics for explanation
-    image_characteristics = analyze_image_characteristics(image)
 
     processing_time = time.time() - start_time
-    explanation = generate_explanation(prediction, confidence, "image", image_characteristics)
+    explanation = generate_explanation(prediction, confidence, "image")
 
     response = {
         "prediction": prediction,
@@ -458,50 +456,14 @@ async def load_model_if_needed():
         logger.error(f"Failed to load image model: {e}")
         image_model = None
 
-def analyze_image_characteristics(image: Image.Image) -> dict:
-    """
-    Analyze image characteristics for domain-specific calibration.
-    
-    Args:
-        image: PIL Image object to analyze
-        
-    Returns:
-        dict: Image characteristics including brightness, contrast, sharpness
-    """
-    try:
-        # Convert to numpy for analysis
-        img_array = np.array(image)
-        
-        # Basic statistics
-        characteristics = {
-            'mean_brightness': np.mean(img_array),
-            'std_brightness': np.std(img_array),
-            'contrast': np.std(img_array),
-            'size': image.size
-        }
-        
-        # Calculate sharpness using Laplacian variance
-        try:
-            from scipy import ndimage
-            gray = np.mean(img_array, axis=2)
-            characteristics['sharpness'] = ndimage.laplace(gray).var()
-        except ImportError:
-            # Fallback if scipy not available
-            characteristics['sharpness'] = np.var(img_array)
-        
-        return characteristics
-    except Exception as e:
-        logger.warning(f"Image analysis failed: {e}")
-        return {}
-
 def predict_image(image: Image.Image, model: ort.InferenceSession) -> tuple:
     """
     Run deepfake detection inference on a single image with confidence calibration.
     
     Preprocesses the image, runs it through the trained model, and returns
-    the prediction with calibrated confidence score. The model outputs a logit which
-    is converted to a probability using sigmoid activation, then calibrated to reduce
-    overconfidence with domain-specific adjustments.
+    the prediction with calibrated confidence score. The model outputs a single logit
+    for P(real), because training used ImageFolder, which numbers classes alphabetically
+    (fake=0, real=1). It is converted to P(fake) and then calibrated to reduce overconfidence.
     
     Args:
         image: PIL Image object to analyze
@@ -516,145 +478,47 @@ def predict_image(image: Image.Image, model: ort.InferenceSession) -> tuple:
         Exception: inference errors propagate (handled as a 500) rather than
             being turned into a made-up prediction
     """
-    # Analyze image characteristics for domain-specific calibration
-    image_characteristics = analyze_image_characteristics(image)
-
     logit = model.run(None, {"input": preprocess_image(image)})[0].item()
-    probability = 1 / (1 + np.exp(-logit))
+    probability = 1 / (1 + np.exp(logit))  # sigmoid(-logit) = 1 - P(real) = P(fake)
 
-    # Apply confidence calibration with image characteristics
-    calibrated_probability = calibrate_confidence(probability, image_characteristics)
+    calibrated_probability = calibrate_confidence(probability)
 
     prediction = "ai_generated" if calibrated_probability > 0.5 else "real"
     confidence = calibrated_probability if prediction == "ai_generated" else (1 - calibrated_probability)
     return prediction, confidence
 
-def calibrate_confidence(probability: float, image_characteristics: dict = None) -> float:
+def calibrate_confidence(probability: float) -> float:
     """
-    Calibrate confidence scores to reduce overconfidence with domain-specific adjustments.
-    
-    This function applies temperature scaling and confidence bounds to make
-    the model's predictions more realistic and less overconfident. Includes
-    special handling for professional/celebrity stock photos.
-    
+    Soften P(fake) with temperature scaling and map it into 0.1-0.9.
+
+    The model was trained and evaluated on FaceForensics++ frames, so its raw
+    confidence overstates how sure it can be on other images.
+
     Args:
-        probability: Raw probability from the model (0.0-1.0)
-        image_characteristics: Optional dict with image analysis results
-        
+        probability: P(fake) from the model (0.0-1.0)
+
     Returns:
-        float: Calibrated probability (0.0-1.0)
+        float: Calibrated P(fake) (0.1-0.9)
     """
-    try:
-        # Ensure probability is in valid range
-        probability = max(0.001, min(0.999, probability))
-        
-        # Temperature scaling to reduce overconfidence
-        temperature = 1.5  # Higher temperature = less confident
-        logit = np.log(probability / (1 - probability + 1e-8))
-        calibrated_logit = logit / temperature
-        calibrated_prob = 1 / (1 + np.exp(-calibrated_logit))
-    except Exception as e:
-        logger.error(f"Error in calibration temperature scaling: {e}")
-        # Fallback to original probability if calibration fails
-        calibrated_prob = probability
-    
-    # Apply confidence bounds to prevent extreme values
-    min_confidence = 0.1  # Minimum 10% confidence
-    max_confidence = 0.9  # Maximum 90% confidence
-    
-    # Domain-specific adjustments for professional/celebrity stock photos
-    try:
-        if image_characteristics:
-            # Debug logging for celebrity photo detection
-            logger.info(f"Image characteristics: brightness={image_characteristics.get('mean_brightness', 0):.1f}, "
-                       f"contrast={image_characteristics.get('std_brightness', 0):.1f}, "
-                       f"sharpness={image_characteristics.get('sharpness', 0):.1f}")
-            
-            # If image appears to be high-quality professional photography
-            # Use more reasonable thresholds to avoid over-calibration
-            if (image_characteristics.get('mean_brightness', 0) > 100 and   # Higher threshold for professional photos
-                image_characteristics.get('std_brightness', 0) > 50 and    # Higher contrast threshold
-                image_characteristics.get('sharpness', 0) > 1000):         # Much higher sharpness threshold
-                
-                logger.info("Professional photography detected - applying calibration")
-                
-                # Apply moderate calibration for professional-looking images
-                # They often get misclassified as AI-generated, but don't over-correct
-                if calibrated_prob > 0.5:  # If predicted as AI-generated
-                    calibrated_prob = 0.5 + (calibrated_prob - 0.5) * 0.7  # Moderate reduction
-                else:  # If predicted as real
-                    calibrated_prob = 0.5 - (0.5 - calibrated_prob) * 0.8  # Moderate increase
-            
-            # Additional check for celebrity-style images
-            # These often have specific characteristics that get misclassified
-            is_celebrity_style = False
-            if image_characteristics:
-                # Check for celebrity-style characteristics
-                brightness = image_characteristics.get('mean_brightness', 0)
-                contrast = image_characteristics.get('std_brightness', 0)
-                size = image_characteristics.get('size', (0, 0))
-                
-                # Celebrity photos often have:
-                # - Medium to high brightness (professional lighting)
-                # - Good contrast (professional photography)
-                # - Reasonable size (not tiny images)
-                # Use more restrictive criteria to avoid over-calibration
-                is_celebrity_style = (
-                    brightness > 80 and   # Higher brightness threshold
-                    brightness < 180 and  # Not too bright
-                    contrast > 40 and     # Higher contrast threshold
-                    size[0] > 200 and size[1] > 200  # Larger size requirement
-                )
-                
-                if is_celebrity_style:
-                    logger.info("Celebrity-style image detected - applying additional calibration")
-                    # Apply moderate calibration for celebrity-style images
-                    if calibrated_prob > 0.5:  # If predicted as AI-generated
-                        calibrated_prob = 0.5 + (calibrated_prob - 0.5) * 0.6  # Moderate reduction
-                    else:  # If predicted as real
-                        calibrated_prob = 0.5 - (0.5 - calibrated_prob) * 0.7  # Moderate increase
-    except Exception as e:
-        logger.error(f"Error in professional photo calibration: {e}")
-        # Continue with uncalibrated probability if calibration fails
-    
-    # Map the calibrated probability to the bounded range
-    try:
-        if calibrated_prob < 0.5:
-            # For "real" predictions, map 0.0-0.5 to 0.1-0.5
-            bounded_prob = min_confidence + (calibrated_prob / 0.5) * (0.5 - min_confidence)
-        else:
-            # For "ai_generated" predictions, map 0.5-1.0 to 0.5-0.9
-            bounded_prob = 0.5 + ((calibrated_prob - 0.5) / 0.5) * (max_confidence - 0.5)
-        
-        # Ensure final result is in valid range
-        bounded_prob = max(0.1, min(0.9, bounded_prob))
-        return bounded_prob
-    except Exception as e:
-        logger.error(f"Error in final calibration mapping: {e}")
-        # Return original probability if final mapping fails
-        return max(0.1, min(0.9, probability))
-
-def get_detected_features(prediction: str, confidence: float, media_type: str) -> list:
-    # [Keep your existing get_detected_features function logic here]
-    # For brevity, not repeating it here.
-    pass
+    probability = min(max(probability, 0.001), 0.999)
+    logit = np.log(probability / (1 - probability)) / 1.5  # temperature 1.5: less confident
+    calibrated = 1 / (1 + np.exp(-logit))
+    return 0.1 + calibrated * 0.8  # never claim more than 90% either way
 
 
-def generate_explanation(prediction: str, confidence: float, media_type: str, image_characteristics: dict = None) -> str:
+def generate_explanation(prediction: str, confidence: float, media_type: str) -> str:
     """
     Generate human-readable explanation for the deepfake detection result.
     
     Creates a descriptive explanation based on the prediction, calibrated confidence level,
     and media type. Provides context about what features were analyzed and
-    what the confidence level means in practical terms. Includes domain-specific
-    information for professional/celebrity stock photos.
-    
+    what the confidence level means in practical terms.
+
     Args:
         prediction: "real" or "ai_generated"
         confidence: Calibrated confidence score (0.0-1.0)
         media_type: "image" or "video"
-        image_characteristics: Optional dict with image analysis results
-        
+
     Returns:
         str: Human-readable explanation of the analysis result
     """
@@ -665,25 +529,12 @@ def generate_explanation(prediction: str, confidence: float, media_type: str, im
         confidence_desc = "moderate"
     else:
         confidence_desc = "weak"
-    
-    # Check if this appears to be professional/celebrity stock photo
-    is_professional = False
-    if image_characteristics:
-        is_professional = (
-            image_characteristics.get('mean_brightness', 0) > 100 and   # Higher threshold
-            image_characteristics.get('std_brightness', 0) > 50 and     # Higher threshold
-            image_characteristics.get('sharpness', 0) > 1000            # Much higher threshold
-        )
-    
+
     if prediction == "ai_generated":
         if media_type == "image":
             base_explanation = f"This image shows {confidence_desc} signs of AI generation. " \
                              f"Analysis detected potential inconsistencies in lighting, " \
                              f"texture patterns, or facial features that suggest synthetic origin."
-            
-            if is_professional:
-                base_explanation += " Note: Professional photography can sometimes be misclassified due to high quality and retouching."
-            
             base_explanation += " AI detection is an evolving field and results should be considered as guidance."
             return base_explanation
         else:  # video
@@ -695,10 +546,6 @@ def generate_explanation(prediction: str, confidence: float, media_type: str, im
         base_explanation = f"This {media_type} appears to be authentic with {confidence_desc} confidence. " \
                           f"Natural variations in lighting, texture, and facial expressions " \
                           f"are consistent with genuine content."
-        
-        if is_professional:
-            base_explanation += " The high quality and professional characteristics support this assessment."
-        
         base_explanation += " Note: No detection method is 100% accurate."
         return base_explanation
 
