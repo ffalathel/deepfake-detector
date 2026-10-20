@@ -52,6 +52,22 @@ app.add_middleware(
 # -------------------- Rate Limiting --------------------
 request_counts = defaultdict(list)
 
+
+def get_client_ip(request: Request) -> str:
+    """
+    Return the real client IP for rate limiting.
+
+    On Hugging Face Spaces, request.client is a different internal proxy address
+    on each request. The proxy appends the real client IP as the last
+    X-Forwarded-For entry; earlier entries come from the client and can be faked.
+    Without the header (local development), fall back to the socket address.
+    """
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[-1].strip()
+    return request.client.host
+
+
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
     """
@@ -72,7 +88,7 @@ async def rate_limit_middleware(request: Request, call_next):
             raised, because exceptions raised in middleware bypass FastAPI's
             HTTPException handling and become 500s.
     """
-    client_ip = request.client.host
+    client_ip = get_client_ip(request)
     now = time.time()
     
     # Clean old requests (older than 1 minute)
