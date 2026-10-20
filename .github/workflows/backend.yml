@@ -45,6 +45,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Show HF_TOKEN permissions
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          curl -s -H "Authorization: Bearer $HF_TOKEN" https://huggingface.co/api/whoami-v2 | python3 -c "
+          import json, sys
+          t = json.load(sys.stdin).get('auth', {}).get('accessToken', {})
+          print('token:', t.get('displayName'), '| role:', t.get('role'))
+          for s in t.get('fineGrained', {}).get('scoped', []):
+              print(' ', s['entity'].get('type'), s['entity'].get('name'), s.get('permissions'))"
+
       - name: Upload code to the Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
